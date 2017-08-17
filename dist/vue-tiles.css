@@ -1,0 +1,185 @@
+/*!
+ * vue-tiles v0.0.1
+ * (c) 2017 Collier Devlin
+ * Released under the MIT License.
+ */
+
+
+.grid[data-v-55ef5536] {
+  position: relative;
+}
+.item[data-v-55ef5536] {
+  display: block;
+  position: absolute;
+  margin: 5px;
+  z-index: 1;
+  background: #333;
+  border: 2px solid black;
+  border-radius: 5px;
+  padding: 15px;
+  color: #fff;
+  opacity: 0.9;
+}
+.item[data-v-55ef5536]:hover {
+  opacity: 1
+}
+.item.muuri-dragging[data-v-55ef5536] {
+  z-index: 5;
+  opacity: 0.6;
+}
+.item.muuri-releasing[data-v-55ef5536] {
+  z-index: 2;
+}
+.item.muuri-hidden[data-v-55ef5536] {
+  z-index: 0;
+}
+.item-content[data-v-55ef5536] {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.text-center[data-v-30244bba] {
+  text-align: center
+}
+.hidden[data-v-30244bba] {
+  display: none
+}
+.handle[data-v-30244bba] {
+  width: 100%;
+  height: 25px
+}
+.handle[data-v-30244bba]:hover {
+  cursor: move
+}
+.clickable[data-v-30244bba] {
+  height: 100%;
+  padding-top: 35px;
+  color: blue
+}
+.clickable[data-v-30244bba]:hover {
+  cursor: pointer
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
