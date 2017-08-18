@@ -1,6 +1,6 @@
 {
   "name": "vue-muuri",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "A vue plugin using Muuri's responsive, sortable, filterable and draggable grid layouts.",
   "author": "Collier Devlin <jocodev@gmail.com>",
   "main": "dist/vue-muuri.common.js",
