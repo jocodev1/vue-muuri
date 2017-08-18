@@ -7,7 +7,7 @@
       'max-width': width,
       'height': height
     }">
-    <div class="item-content link-tile">
+    <div class="item-content link-item">
       <div class="handle"></div>
       <div class="clickable" v-on:click="onClick(id)">
         <form :id="id + '-form'" method="get" :action="route">
@@ -27,7 +27,7 @@
   import jQuery from 'jquery'
 
   export default {
-    name: 'LinkTile',
+    name: 'item-link',
     props: {
       id: {
         type: [Number, String],

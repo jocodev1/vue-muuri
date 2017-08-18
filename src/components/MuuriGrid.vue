@@ -1,5 +1,5 @@
 <template>
-  <div :id="id" class="tile-grid">
+  <div :id="id" class="muuri-grid">
     <slot></slot>
   </div>
 </template>
@@ -10,7 +10,7 @@
   var self = null
 
   export default {
-    name: 'tile-grid',
+    name: 'muuri-grid',
     data () {
       return {
         grid: null
@@ -19,7 +19,7 @@
     props: {
       id: {
         type: String,
-        default: 'tiles'
+        default: 'grid'
       },
       options: {
         type: Object,

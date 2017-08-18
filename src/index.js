@@ -1,12 +1,12 @@
-import Grid from './components/Grid.vue'
-import LinkTile from './components/tiles/Link.vue'
-import ContentSm from './components/tiles/ContentSm.vue'
-import ContentMd from './components/tiles/ContentMd.vue'
-import ContentLg from './components/tiles/ContentLg.vue'
+import MuuriGrid from './components/MuuriGrid.vue'
+import ItemLink from './components/items/ItemLink.vue'
+import ItemSm from './components/items/ItemSm.vue'
+import ItemMd from './components/items/ItemMd.vue'
+import ItemLg from './components/items/ItemLg.vue'
 
 var plugin = {
   install: function (Vue, store) {
-    Vue.component('vue-tile-grid', Grid)
+    Vue.component('muuri-grid', MuuriGrid)
   }
 }
 
@@ -19,10 +19,10 @@ export default plugin
 const version = '__VERSION__'
 // Export all components too
 export {
-  Grid,
-  LinkTile,
-  ContentSm,
-  ContentMd,
-  ContentLg,
+  MuuriGrid,
+  ItemLink,
+  ItemSm,
+  ItemMd,
+  ItemLg,
   version
 }

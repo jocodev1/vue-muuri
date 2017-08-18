@@ -5,7 +5,7 @@
       'max-width': width,
       'height': height
     }">
-    <div class="item-content link-tile">
+    <div class="item-content item-lg">
       <slot></slot>
     </div>
   </div>
@@ -13,11 +13,11 @@
 
 <script>
   export default {
-    name: 'content-md',
+    name: 'item-lg',
     props: {
       id: {
         type: [Number, String],
-        default: 'tile'
+        default: 'item-lg'
       },
       width: {
         type: String,

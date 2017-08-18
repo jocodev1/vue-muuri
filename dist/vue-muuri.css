@@ -1,14 +1,14 @@
 /*!
- * vue-muuri v0.0.1
+ * vue-muuri v0.0.2
  * (c) 2017 Collier Devlin
  * Released under the MIT License.
  */
 
 
-.grid[data-v-55ef5536] {
+.grid[data-v-5448d39b] {
   position: relative;
 }
-.item[data-v-55ef5536] {
+.item[data-v-5448d39b] {
   display: block;
   position: absolute;
   margin: 5px;
@@ -20,44 +20,44 @@
   color: #fff;
   opacity: 0.9;
 }
-.item[data-v-55ef5536]:hover {
+.item[data-v-5448d39b]:hover {
   opacity: 1
 }
-.item.muuri-dragging[data-v-55ef5536] {
+.item.muuri-dragging[data-v-5448d39b] {
   z-index: 5;
   opacity: 0.6;
 }
-.item.muuri-releasing[data-v-55ef5536] {
+.item.muuri-releasing[data-v-5448d39b] {
   z-index: 2;
 }
-.item.muuri-hidden[data-v-55ef5536] {
+.item.muuri-hidden[data-v-5448d39b] {
   z-index: 0;
 }
-.item-content[data-v-55ef5536] {
+.item-content[data-v-5448d39b] {
   position: relative;
   width: 100%;
   height: 100%;
 }
 
-.text-center[data-v-30244bba] {
+.text-center[data-v-2622597b] {
   text-align: center
 }
-.hidden[data-v-30244bba] {
+.hidden[data-v-2622597b] {
   display: none
 }
-.handle[data-v-30244bba] {
+.handle[data-v-2622597b] {
   width: 100%;
   height: 25px
 }
-.handle[data-v-30244bba]:hover {
+.handle[data-v-2622597b]:hover {
   cursor: move
 }
-.clickable[data-v-30244bba] {
+.clickable[data-v-2622597b] {
   height: 100%;
   padding-top: 35px;
   color: blue
 }
-.clickable[data-v-30244bba]:hover {
+.clickable[data-v-2622597b]:hover {
   cursor: pointer
 }
 

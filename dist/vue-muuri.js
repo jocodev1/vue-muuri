@@ -1,5 +1,5 @@
 /*!
- * vue-muuri v0.0.1
+ * vue-muuri v0.0.2
  * (c) 2017 Collier Devlin
  * Released under the MIT License.
  */
@@ -10,9 +10,9 @@
 	else if(typeof define === 'function' && define.amd)
 		define([], factory);
 	else if(typeof exports === 'object')
-		exports["VueTiles"] = factory();
+		exports["VueMuuri"] = factory();
 	else
-		root["VueTiles"] = factory();
+		root["VueMuuri"] = factory();
 })(this, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -7876,33 +7876,33 @@ module.exports = Helper;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.version = exports.ContentLg = exports.ContentMd = exports.ContentSm = exports.LinkTile = exports.Grid = undefined;
+exports.version = exports.ItemLg = exports.ItemMd = exports.ItemSm = exports.ItemLink = exports.MuuriGrid = undefined;
 
-var _Grid = __webpack_require__(32);
+var _MuuriGrid = __webpack_require__(32);
 
-var _Grid2 = _interopRequireDefault(_Grid);
+var _MuuriGrid2 = _interopRequireDefault(_MuuriGrid);
 
-var _Link = __webpack_require__(36);
+var _ItemLink = __webpack_require__(34);
 
-var _Link2 = _interopRequireDefault(_Link);
+var _ItemLink2 = _interopRequireDefault(_ItemLink);
 
-var _ContentSm = __webpack_require__(35);
+var _ItemSm = __webpack_require__(36);
 
-var _ContentSm2 = _interopRequireDefault(_ContentSm);
+var _ItemSm2 = _interopRequireDefault(_ItemSm);
 
-var _ContentMd = __webpack_require__(34);
+var _ItemMd = __webpack_require__(35);
 
-var _ContentMd2 = _interopRequireDefault(_ContentMd);
+var _ItemMd2 = _interopRequireDefault(_ItemMd);
 
-var _ContentLg = __webpack_require__(33);
+var _ItemLg = __webpack_require__(33);
 
-var _ContentLg2 = _interopRequireDefault(_ContentLg);
+var _ItemLg2 = _interopRequireDefault(_ItemLg);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var plugin = {
   install: function install(Vue, store) {
-    Vue.component('vue-tile-grid', _Grid2.default);
+    Vue.component('muuri-grid', _MuuriGrid2.default);
   }
 
   // Install by default if using the script tag
@@ -7914,11 +7914,11 @@ exports.default = plugin;
 
 var version = '__VERSION__';
 // Export all components too
-exports.Grid = _Grid2.default;
-exports.LinkTile = _Link2.default;
-exports.ContentSm = _ContentSm2.default;
-exports.ContentMd = _ContentMd2.default;
-exports.ContentLg = _ContentLg2.default;
+exports.MuuriGrid = _MuuriGrid2.default;
+exports.ItemLink = _ItemLink2.default;
+exports.ItemSm = _ItemSm2.default;
+exports.ItemMd = _ItemMd2.default;
+exports.ItemLg = _ItemLg2.default;
 exports.version = version;
 
 /***/ }),
@@ -7974,7 +7974,7 @@ var self = null; //
 //
 
 exports.default = {
-  name: 'tile-grid',
+  name: 'muuri-grid',
   data: function data() {
     return {
       grid: null
@@ -7984,7 +7984,7 @@ exports.default = {
   props: {
     id: {
       type: String,
-      default: 'tiles'
+      default: 'grid'
     },
     options: {
       type: Object,
@@ -8109,11 +8109,11 @@ Object.defineProperty(exports, "__esModule", {
 //
 
 exports.default = {
-  name: 'content-md',
+  name: 'item-lg',
   props: {
     id: {
       type: [Number, String],
-      default: 'tile'
+      default: 'item-lg'
     },
     width: {
       type: String,
@@ -8142,102 +8142,6 @@ exports.default = {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-exports.default = {
-  name: 'content-md',
-  props: {
-    id: {
-      type: [Number, String],
-      default: 'tile'
-    },
-    width: {
-      type: String,
-      default: '410px'
-    },
-    height: {
-      type: String,
-      default: '410px'
-    },
-    onClick: {
-      type: Function,
-      default: function _default(id) {
-        return null;
-      }
-    }
-  }
-};
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-exports.default = {
-  name: 'content-sm',
-  props: {
-    id: {
-      type: [Number, String],
-      default: 'tile'
-    },
-    width: {
-      type: String,
-      default: '200px'
-    },
-    height: {
-      type: String,
-      default: '200px'
-    },
-    onClick: {
-      type: Function,
-      default: function _default(id) {
-        return null;
-      }
-    }
-  }
-};
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
 
 var _jquery = __webpack_require__(18);
 
@@ -8246,7 +8150,7 @@ var _jquery2 = _interopRequireDefault(_jquery);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = {
-  name: 'LinkTile',
+  name: 'item-link',
   props: {
     id: {
       type: [Number, String],
@@ -8304,6 +8208,102 @@ exports.default = {
 //
 //
 //
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+exports.default = {
+  name: 'item-md',
+  props: {
+    id: {
+      type: [Number, String],
+      default: 'item-md'
+    },
+    width: {
+      type: String,
+      default: '410px'
+    },
+    height: {
+      type: String,
+      default: '410px'
+    },
+    onClick: {
+      type: Function,
+      default: function _default(id) {
+        return null;
+      }
+    }
+  }
+};
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+exports.default = {
+  name: 'item-sm',
+  props: {
+    id: {
+      type: [Number, String],
+      default: 'item-sm'
+    },
+    width: {
+      type: String,
+      default: '200px'
+    },
+    height: {
+      type: String,
+      default: '200px'
+    },
+    onClick: {
+      type: Function,
+      default: function _default(id) {
+        return null;
+      }
+    }
+  }
+};
 
 /***/ }),
 /* 13 */
@@ -27207,23 +27207,23 @@ if (typeof module !== 'undefined' && __webpack_require__.c[__webpack_require__.s
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(17)
+  __webpack_require__(14)
 }
 var Component = __webpack_require__(0)(
   /* script */
   __webpack_require__(8),
   /* template */
-  __webpack_require__(41),
+  __webpack_require__(38),
   /* styles */
   injectStyle,
   /* scopeId */
-  "data-v-55ef5536",
+  "data-v-5448d39b",
   /* moduleIdentifier (server only) */
   null
 )
-Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-muuri\\src\\components\\Grid.vue"
+Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-tiles\\src\\components\\MuuriGrid.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
-if (Component.options.functional) {console.error("[vue-loader] Grid.vue: functional components are not supported with templates, they should use render functions.")}
+if (Component.options.functional) {console.error("[vue-loader] MuuriGrid.vue: functional components are not supported with templates, they should use render functions.")}
 
 /* hot reload */
 if (false) {(function () {
@@ -27232,9 +27232,9 @@ if (false) {(function () {
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-55ef5536", Component.options)
+    hotAPI.createRecord("data-v-5448d39b", Component.options)
   } else {
-    hotAPI.reload("data-v-55ef5536", Component.options)
+    hotAPI.reload("data-v-5448d39b", Component.options)
   }
   module.hot.dispose(function (data) {
     disposed = true
@@ -27251,23 +27251,23 @@ module.exports = Component.exports
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(16)
+  __webpack_require__(17)
 }
 var Component = __webpack_require__(0)(
   /* script */
   __webpack_require__(9),
   /* template */
-  __webpack_require__(40),
+  __webpack_require__(41),
   /* styles */
   injectStyle,
   /* scopeId */
-  "data-v-37364b0a",
+  "data-v-e5761688",
   /* moduleIdentifier (server only) */
   null
 )
-Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-muuri\\src\\components\\tiles\\ContentLg.vue"
+Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-tiles\\src\\components\\items\\ItemLg.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
-if (Component.options.functional) {console.error("[vue-loader] ContentLg.vue: functional components are not supported with templates, they should use render functions.")}
+if (Component.options.functional) {console.error("[vue-loader] ItemLg.vue: functional components are not supported with templates, they should use render functions.")}
 
 /* hot reload */
 if (false) {(function () {
@@ -27276,9 +27276,9 @@ if (false) {(function () {
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-37364b0a", Component.options)
+    hotAPI.createRecord("data-v-e5761688", Component.options)
   } else {
-    hotAPI.reload("data-v-37364b0a", Component.options)
+    hotAPI.reload("data-v-e5761688", Component.options)
   }
   module.hot.dispose(function (data) {
     disposed = true
@@ -27295,23 +27295,23 @@ module.exports = Component.exports
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(15)
+  __webpack_require__(13)
 }
 var Component = __webpack_require__(0)(
   /* script */
   __webpack_require__(10),
   /* template */
-  __webpack_require__(39),
+  __webpack_require__(37),
   /* styles */
   injectStyle,
   /* scopeId */
-  "data-v-342126d2",
+  "data-v-2622597b",
   /* moduleIdentifier (server only) */
   null
 )
-Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-muuri\\src\\components\\tiles\\ContentMd.vue"
+Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-tiles\\src\\components\\items\\ItemLink.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
-if (Component.options.functional) {console.error("[vue-loader] ContentMd.vue: functional components are not supported with templates, they should use render functions.")}
+if (Component.options.functional) {console.error("[vue-loader] ItemLink.vue: functional components are not supported with templates, they should use render functions.")}
 
 /* hot reload */
 if (false) {(function () {
@@ -27320,9 +27320,9 @@ if (false) {(function () {
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-342126d2", Component.options)
+    hotAPI.createRecord("data-v-2622597b", Component.options)
   } else {
-    hotAPI.reload("data-v-342126d2", Component.options)
+    hotAPI.reload("data-v-2622597b", Component.options)
   }
   module.hot.dispose(function (data) {
     disposed = true
@@ -27339,23 +27339,23 @@ module.exports = Component.exports
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(13)
+  __webpack_require__(16)
 }
 var Component = __webpack_require__(0)(
   /* script */
   __webpack_require__(11),
   /* template */
-  __webpack_require__(37),
+  __webpack_require__(40),
   /* styles */
   injectStyle,
   /* scopeId */
-  "data-v-1ea9584c",
+  "data-v-e260f250",
   /* moduleIdentifier (server only) */
   null
 )
-Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-muuri\\src\\components\\tiles\\ContentSm.vue"
+Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-tiles\\src\\components\\items\\ItemMd.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
-if (Component.options.functional) {console.error("[vue-loader] ContentSm.vue: functional components are not supported with templates, they should use render functions.")}
+if (Component.options.functional) {console.error("[vue-loader] ItemMd.vue: functional components are not supported with templates, they should use render functions.")}
 
 /* hot reload */
 if (false) {(function () {
@@ -27364,9 +27364,9 @@ if (false) {(function () {
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-1ea9584c", Component.options)
+    hotAPI.createRecord("data-v-e260f250", Component.options)
   } else {
-    hotAPI.reload("data-v-1ea9584c", Component.options)
+    hotAPI.reload("data-v-e260f250", Component.options)
   }
   module.hot.dispose(function (data) {
     disposed = true
@@ -27383,23 +27383,23 @@ module.exports = Component.exports
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(14)
+  __webpack_require__(15)
 }
 var Component = __webpack_require__(0)(
   /* script */
   __webpack_require__(12),
   /* template */
-  __webpack_require__(38),
+  __webpack_require__(39),
   /* styles */
   injectStyle,
   /* scopeId */
-  "data-v-30244bba",
+  "data-v-cce923ca",
   /* moduleIdentifier (server only) */
   null
 )
-Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-muuri\\src\\components\\tiles\\Link.vue"
+Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-tiles\\src\\components\\items\\ItemSm.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
-if (Component.options.functional) {console.error("[vue-loader] Link.vue: functional components are not supported with templates, they should use render functions.")}
+if (Component.options.functional) {console.error("[vue-loader] ItemSm.vue: functional components are not supported with templates, they should use render functions.")}
 
 /* hot reload */
 if (false) {(function () {
@@ -27408,9 +27408,9 @@ if (false) {(function () {
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-30244bba", Component.options)
+    hotAPI.createRecord("data-v-cce923ca", Component.options)
   } else {
-    hotAPI.reload("data-v-30244bba", Component.options)
+    hotAPI.reload("data-v-cce923ca", Component.options)
   }
   module.hot.dispose(function (data) {
     disposed = true
@@ -27436,34 +27436,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       "id": _vm.id
     }
   }, [_c('div', {
-    staticClass: "item-content link-tile"
-  }, [_vm._t("default")], 2)])
-},staticRenderFns: []}
-module.exports.render._withStripped = true
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-1ea9584c", module.exports)
-  }
-}
-
-/***/ }),
-/* 38 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "item",
-    style: ({
-      'width': '100%',
-      'max-width': _vm.width,
-      'height': _vm.height
-    }),
-    attrs: {
-      "id": _vm.id
-    }
-  }, [_c('div', {
-    staticClass: "item-content link-tile"
+    staticClass: "item-content link-item"
   }, [_c('div', {
     staticClass: "handle"
   }), _vm._v(" "), _c('div', {
@@ -27491,7 +27464,27 @@ module.exports.render._withStripped = true
 if (false) {
   module.hot.accept()
   if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-30244bba", module.exports)
+     require("vue-hot-reload-api").rerender("data-v-2622597b", module.exports)
+  }
+}
+
+/***/ }),
+/* 38 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "muuri-grid",
+    attrs: {
+      "id": _vm.id
+    }
+  }, [_vm._t("default")], 2)
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-5448d39b", module.exports)
   }
 }
 
@@ -27511,14 +27504,14 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       "id": _vm.id
     }
   }, [_c('div', {
-    staticClass: "item-content link-tile"
+    staticClass: "item-content item-sm"
   }, [_vm._t("default")], 2)])
 },staticRenderFns: []}
 module.exports.render._withStripped = true
 if (false) {
   module.hot.accept()
   if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-342126d2", module.exports)
+     require("vue-hot-reload-api").rerender("data-v-cce923ca", module.exports)
   }
 }
 
@@ -27538,14 +27531,14 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       "id": _vm.id
     }
   }, [_c('div', {
-    staticClass: "item-content link-tile"
+    staticClass: "item-content item-md"
   }, [_vm._t("default")], 2)])
 },staticRenderFns: []}
 module.exports.render._withStripped = true
 if (false) {
   module.hot.accept()
   if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-37364b0a", module.exports)
+     require("vue-hot-reload-api").rerender("data-v-e260f250", module.exports)
   }
 }
 
@@ -27555,17 +27548,24 @@ if (false) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
   return _c('div', {
-    staticClass: "tile-grid",
+    staticClass: "item",
+    style: ({
+      'width': '100%',
+      'max-width': _vm.width,
+      'height': _vm.height
+    }),
     attrs: {
       "id": _vm.id
     }
-  }, [_vm._t("default")], 2)
+  }, [_c('div', {
+    staticClass: "item-content item-lg"
+  }, [_vm._t("default")], 2)])
 },staticRenderFns: []}
 module.exports.render._withStripped = true
 if (false) {
   module.hot.accept()
   if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-55ef5536", module.exports)
+     require("vue-hot-reload-api").rerender("data-v-e5761688", module.exports)
   }
 }
 

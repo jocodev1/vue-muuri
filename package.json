@@ -1,13 +1,13 @@
 {
-  "name": "vue-tiles",
-  "version": "0.0.1",
+  "name": "vue-muuri",
+  "version": "0.0.2",
   "description": "A vue plugin using Muuri's responsive, sortable, filterable and draggable grid layouts.",
   "author": "Collier Devlin <jocodev@gmail.com>",
-  "main": "dist/vue-tiles.common.js",
-  "module": "dist/vue-tiles.esm.js",
-  "browser": "dist/vue-tiles.js",
-  "unpkg": "dist/vue-tiles.js",
-  "style": "dist/vue-tiles.css",
+  "main": "dist/vue-muuri.common.js",
+  "module": "dist/vue-muuri.esm.js",
+  "browser": "dist/vue-muuri.js",
+  "unpkg": "dist/vue-muuri.js",
+  "style": "dist/vue-muuri.css",
   "files": [
     "dist",
     "src"

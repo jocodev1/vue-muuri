@@ -5,7 +5,7 @@
       'max-width': width,
       'height': height
     }">
-    <div class="item-content link-tile">
+    <div class="item-content item-md">
       <slot></slot>
     </div>
   </div>
@@ -13,19 +13,19 @@
 
 <script>
   export default {
-    name: 'content-sm',
+    name: 'item-md',
     props: {
       id: {
         type: [Number, String],
-        default: 'tile'
+        default: 'item-md'
       },
       width: {
         type: String,
-        default: '200px'
+        default: '410px'
       },
       height: {
         type: String,
-        default: '200px'
+        default: '410px'
       },
       onClick: {
         type: Function,
