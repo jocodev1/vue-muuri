@@ -7984,7 +7984,7 @@ exports.default = {
   props: {
     id: {
       type: String,
-      default: 'tiles'
+      default: 'muuri'
     },
     options: {
       type: Object,
@@ -27265,7 +27265,7 @@ var Component = __webpack_require__(0)(
   /* moduleIdentifier (server only) */
   null
 )
-Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-muuri\\src\\components\\tiles\\ContentLg.vue"
+Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-muuri\\src\\components\\muuri\\ContentLg.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
 if (Component.options.functional) {console.error("[vue-loader] ContentLg.vue: functional components are not supported with templates, they should use render functions.")}
 
@@ -27309,7 +27309,7 @@ var Component = __webpack_require__(0)(
   /* moduleIdentifier (server only) */
   null
 )
-Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-muuri\\src\\components\\tiles\\ContentMd.vue"
+Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-muuri\\src\\components\\muuri\\ContentMd.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
 if (Component.options.functional) {console.error("[vue-loader] ContentMd.vue: functional components are not supported with templates, they should use render functions.")}
 
@@ -27353,7 +27353,7 @@ var Component = __webpack_require__(0)(
   /* moduleIdentifier (server only) */
   null
 )
-Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-muuri\\src\\components\\tiles\\ContentSm.vue"
+Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-muuri\\src\\components\\muuri\\ContentSm.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
 if (Component.options.functional) {console.error("[vue-loader] ContentSm.vue: functional components are not supported with templates, they should use render functions.")}
 
@@ -27397,7 +27397,7 @@ var Component = __webpack_require__(0)(
   /* moduleIdentifier (server only) */
   null
 )
-Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-muuri\\src\\components\\tiles\\Link.vue"
+Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-muuri\\src\\components\\muuri\\Link.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
 if (Component.options.functional) {console.error("[vue-loader] Link.vue: functional components are not supported with templates, they should use render functions.")}
 

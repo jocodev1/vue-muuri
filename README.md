@@ -25,49 +25,49 @@ Vue.use(VueMuuri)
 
 ## How to Use
 
-Vue tiles consists of a base `vue-tile-grid` component that implements the [Muuri](https://github.com/haltu/muuri) plugin. Using this component, we will be able to insert any number of tile components through its slot.
+Vue muuri consists of a base `muuri-grid` component that implements the [Muuri](https://github.com/haltu/muuri) plugin. Using this component, we will be able to insert any number of tile components through its slot.
 
 Example:
 ```html
-    <vue-tile-grid id="example-grid">
+    <muuri-grid id="example-grid">
       <!-- slot content -->
-    </vue-tile-grid>
+    </muuri-grid>
 ```
 
-Out-of-the-box, vue-muuri comes with a few tile components to get you started.
+Out-of-the-box, vue-muuri comes with a few item components to get you started.
 ```js
-    import { LinkTile, ContentSm, ContentMd, ContentLg } from 'vue-muuri'
+    import { ItemLink, ItemSm, ItemMd, ItemLg } from 'vue-muuri'
 ```
 
 ```html
-    <vue-tile-grid id="example-grid">
-      <link-tile id="link" text="Example Link" route="/"></link-tile>
+    <muuri-grid id="example-grid">
+      <item-link id="link" text="Example Link" route="/"></item-link>
       
-      <content-sm id="content-sm">
-        <p>Here is some small content.</p>
-      </content-sm>
+      <item-sm id="item-sm">
+        <p>Small item.</p>
+      </item-sm>
       
-      <content-md id="content-md">
-        <p>Here is some medium content.</p>
-      </content-md>
+      <item-md id="item-md">
+        <p>Medium item.</p>
+      </item-md>
       
-      <content-lg id="content-lg">
-        <p>Here is large content.</p>
-      </content-lg>
-    </vue-tile-grid>
+      <item-lg id="item-lg">
+        <p>Large item.</p>
+      </item-lg>
+    </muuri-grid>
 ```
 
 ## Events
 
-vue-muuri also allows you to listen to events on the grid object created by [Muuri](https://github.com/haltu/muuri). Please refer to the [docs](https://github.com/haltu/muuri) for a complete list of events.
+Vue-muuri also allows you to listen to events on the grid object created by [Muuri](https://github.com/haltu/muuri). Please refer to the [docs](https://github.com/haltu/muuri) for a complete list of events.
 
 Example:
 ```html
-    <vue-tile-grid id="example-grid" @layoutEnd="updateOrder">
-      <content-sm :id="'content-sm-' + index" v-for="num, index in [1,2,3,4]">
-        <p>Content {{ num }}</p>
-      </content-sm>
-    </vue-tile-grid>
+    <muuri-grid id="example-grid" @layoutEnd="updateOrder">
+      <item-sm :id="'item-sm-' + index" v-for="num, index in [1,2,3,4]">
+        <p>Item {{ num }}</p>
+      </item-sm>
+    </muuri-grid>
 ```
 
 ```js

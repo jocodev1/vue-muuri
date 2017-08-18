@@ -26770,21 +26770,21 @@ if (typeof module !== 'undefined' && __webpack_require__.c[__webpack_require__.s
 
 function injectStyle (ssrContext) {
 var i
-  __webpack_require__(13)
+  __webpack_require__(15)
 }
 var Component = __webpack_require__(0)(
   /* script */
   __webpack_require__(7),
   /* template */
-  __webpack_require__(35),
+  __webpack_require__(37),
   /* styles */
   injectStyle,
   /* scopeId */
-  "data-v-5448d39b",
+  "data-v-614cfcbc",
   /* moduleIdentifier (server only) */
-  "0241b0e8"
+  "56c565a8"
 )
-Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-tiles\\src\\components\\MuuriGrid.vue"
+Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-muuri\\src\\components\\MuuriGrid.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
 if (Component.options.functional) {console.error("[vue-loader] MuuriGrid.vue: functional components are not supported with templates, they should use render functions.")}
 
@@ -26797,21 +26797,21 @@ module.exports = Component.exports
 
 function injectStyle (ssrContext) {
 var i
-  __webpack_require__(16)
+  __webpack_require__(12)
 }
 var Component = __webpack_require__(0)(
   /* script */
   __webpack_require__(8),
   /* template */
-  __webpack_require__(38),
+  __webpack_require__(34),
   /* styles */
   injectStyle,
   /* scopeId */
-  "data-v-e5761688",
+  "data-v-44732bfb",
   /* moduleIdentifier (server only) */
-  "254abb18"
+  "c0319d10"
 )
-Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-tiles\\src\\components\\items\\ItemLg.vue"
+Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-muuri\\src\\components\\items\\ItemLg.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
 if (Component.options.functional) {console.error("[vue-loader] ItemLg.vue: functional components are not supported with templates, they should use render functions.")}
 
@@ -26824,21 +26824,21 @@ module.exports = Component.exports
 
 function injectStyle (ssrContext) {
 var i
-  __webpack_require__(12)
+  __webpack_require__(16)
 }
 var Component = __webpack_require__(0)(
   /* script */
   __webpack_require__(9),
   /* template */
-  __webpack_require__(34),
+  __webpack_require__(38),
   /* styles */
   injectStyle,
   /* scopeId */
-  "data-v-2622597b",
+  "data-v-6ac0860c",
   /* moduleIdentifier (server only) */
-  "58600e52"
+  "19285737"
 )
-Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-tiles\\src\\components\\items\\ItemLink.vue"
+Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-muuri\\src\\components\\items\\ItemLink.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
 if (Component.options.functional) {console.error("[vue-loader] ItemLink.vue: functional components are not supported with templates, they should use render functions.")}
 
@@ -26851,21 +26851,21 @@ module.exports = Component.exports
 
 function injectStyle (ssrContext) {
 var i
-  __webpack_require__(15)
+  __webpack_require__(13)
 }
 var Component = __webpack_require__(0)(
   /* script */
   __webpack_require__(10),
   /* template */
-  __webpack_require__(37),
+  __webpack_require__(35),
   /* styles */
   injectStyle,
   /* scopeId */
-  "data-v-e260f250",
+  "data-v-45fdbe17",
   /* moduleIdentifier (server only) */
-  "26d54d34"
+  "bd1c78d8"
 )
-Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-tiles\\src\\components\\items\\ItemMd.vue"
+Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-muuri\\src\\components\\items\\ItemMd.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
 if (Component.options.functional) {console.error("[vue-loader] ItemMd.vue: functional components are not supported with templates, they should use render functions.")}
 
@@ -26888,11 +26888,11 @@ var Component = __webpack_require__(0)(
   /* styles */
   injectStyle,
   /* scopeId */
-  "data-v-cce923ca",
+  "data-v-50b9a55a",
   /* moduleIdentifier (server only) */
-  "31913477"
+  "a7a4aa52"
 )
-Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-tiles\\src\\components\\items\\ItemSm.vue"
+Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-muuri\\src\\components\\items\\ItemSm.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
 if (Component.options.functional) {console.error("[vue-loader] ItemSm.vue: functional components are not supported with templates, they should use render functions.")}
 
@@ -26901,6 +26901,83 @@ module.exports = Component.exports
 
 /***/ }),
 /* 34 */
+/***/ (function(module, exports) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "item",
+    style: ({
+      'width': '100%',
+      'max-width': _vm.width,
+      'height': _vm.height
+    }),
+    attrs: {
+      "id": _vm.id
+    }
+  }, [_c('div', {
+    staticClass: "item-content item-lg"
+  }, [_vm._t("default")], 2)])
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+
+/***/ }),
+/* 35 */
+/***/ (function(module, exports) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "item",
+    style: ({
+      'width': '100%',
+      'max-width': _vm.width,
+      'height': _vm.height
+    }),
+    attrs: {
+      "id": _vm.id
+    }
+  }, [_c('div', {
+    staticClass: "item-content item-md"
+  }, [_vm._t("default")], 2)])
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+
+/***/ }),
+/* 36 */
+/***/ (function(module, exports) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "item",
+    style: ({
+      'width': '100%',
+      'max-width': _vm.width,
+      'height': _vm.height
+    }),
+    attrs: {
+      "id": _vm.id
+    }
+  }, [_c('div', {
+    staticClass: "item-content item-sm"
+  }, [_vm._t("default")], 2)])
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+
+/***/ }),
+/* 37 */
+/***/ (function(module, exports) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "muuri-grid",
+    attrs: {
+      "id": _vm.id
+    }
+  }, [_vm._t("default")], 2)
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+
+/***/ }),
+/* 38 */
 /***/ (function(module, exports) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -26938,83 +27015,6 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
   })]) : _vm._e(), _vm._v(" "), _c('div', {
     staticClass: "content text-center"
   }, [_c('h5', [_vm._v(_vm._s(_vm.text))])])])])])])
-},staticRenderFns: []}
-module.exports.render._withStripped = true
-
-/***/ }),
-/* 35 */
-/***/ (function(module, exports) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "muuri-grid",
-    attrs: {
-      "id": _vm.id
-    }
-  }, [_vm._t("default")], 2)
-},staticRenderFns: []}
-module.exports.render._withStripped = true
-
-/***/ }),
-/* 36 */
-/***/ (function(module, exports) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "item",
-    style: ({
-      'width': '100%',
-      'max-width': _vm.width,
-      'height': _vm.height
-    }),
-    attrs: {
-      "id": _vm.id
-    }
-  }, [_c('div', {
-    staticClass: "item-content item-sm"
-  }, [_vm._t("default")], 2)])
-},staticRenderFns: []}
-module.exports.render._withStripped = true
-
-/***/ }),
-/* 37 */
-/***/ (function(module, exports) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "item",
-    style: ({
-      'width': '100%',
-      'max-width': _vm.width,
-      'height': _vm.height
-    }),
-    attrs: {
-      "id": _vm.id
-    }
-  }, [_c('div', {
-    staticClass: "item-content item-md"
-  }, [_vm._t("default")], 2)])
-},staticRenderFns: []}
-module.exports.render._withStripped = true
-
-/***/ }),
-/* 38 */
-/***/ (function(module, exports) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "item",
-    style: ({
-      'width': '100%',
-      'max-width': _vm.width,
-      'height': _vm.height
-    }),
-    attrs: {
-      "id": _vm.id
-    }
-  }, [_c('div', {
-    staticClass: "item-content item-lg"
-  }, [_vm._t("default")], 2)])
 },staticRenderFns: []}
 module.exports.render._withStripped = true
 
