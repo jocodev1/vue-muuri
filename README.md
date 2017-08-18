@@ -25,7 +25,7 @@ Vue.use(VueMuuri)
 
 ## How to Use
 
-Vue muuri consists of a base `muuri-grid` component that implements the [Muuri](https://github.com/haltu/muuri) plugin. Using this component, we will be able to insert any number of tile components through its slot.
+Vue-muuri consists of a base `muuri-grid` component that implements the [Muuri](https://github.com/haltu/muuri) plugin. Using this component, we will be able to insert any number of item components through its slot.
 
 Example:
 ```html
