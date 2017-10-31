@@ -1,5 +1,5 @@
 /*!
- * vue-muuri v0.0.2
+ * vue-muuri v0.1.0
  * (c) 2017 Collier Devlin
  * Released under the MIT License.
  */

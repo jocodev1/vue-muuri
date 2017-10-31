@@ -1,5 +1,5 @@
 /*!
- * vue-muuri v0.0.2
+ * vue-muuri v0.1.0
  * (c) 2017 Collier Devlin
  * Released under the MIT License.
  */
@@ -11,21 +11,15 @@
 .item[data-v-614cfcbc] {
   display: block;
   position: absolute;
+  width: 100px;
+  height: 100px;
   margin: 5px;
   z-index: 1;
-  background: #333;
-  border: 2px solid black;
-  border-radius: 5px;
-  padding: 15px;
+  background: #000;
   color: #fff;
-  opacity: 0.9;
-}
-.item[data-v-614cfcbc]:hover {
-  opacity: 1
 }
 .item.muuri-dragging[data-v-614cfcbc] {
-  z-index: 5;
-  opacity: 0.6;
+  z-index: 3;
 }
 .item.muuri-releasing[data-v-614cfcbc] {
   z-index: 2;

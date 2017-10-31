@@ -128,21 +128,15 @@
   .item {
     display: block;
     position: absolute;
+    width: 100px;
+    height: 100px;
     margin: 5px;
     z-index: 1;
-    background: #333;
-    border: 2px solid black;
-    border-radius: 5px;
-    padding: 15px;
+    background: #000;
     color: #fff;
-    opacity: 0.9;
-  }
-  .item:hover {
-    opacity: 1
   }
   .item.muuri-dragging {
-    z-index: 5;
-    opacity: 0.6;
+    z-index: 3;
   }
   .item.muuri-releasing {
     z-index: 2;
