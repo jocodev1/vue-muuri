@@ -31,6 +31,13 @@
         }
       },
     },
+    watch: {
+      options: function (oldOptions, newOptions) {
+        Object.keys(newOptions).forEach(function(key) {
+          if(this.grid._settings[key] != null) this.grid._settings = newOptions[key];
+        });
+      }
+    },
     created () {
       self = this
     },
