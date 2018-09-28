@@ -1,6 +1,6 @@
 /*!
  * vue-muuri v0.1.2
- * (c) 2017 Collier Devlin
+ * (c) 2018 Collier Devlin
  * Released under the MIT License.
  */
 
@@ -3446,7 +3446,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/*! VelocityJS
 			function offsetParentFn(elem) {
 				var offsetParent = elem.offsetParent;
 
-				while (offsetParent && offsetParent.nodeName.toLowerCase() !== "html" && offsetParent.style && offsetParent.style.position === "static") {
+				while (offsetParent && (offsetParent.nodeName.toLowerCase() !== "html" && offsetParent.style && offsetParent.style.position.toLowerCase() === "static")) {
 					offsetParent = offsetParent.offsetParent;
 				}
 
@@ -3790,12 +3790,12 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/*! VelocityJS
 			/* Container for page-wide Velocity state data. */
 			State: {
 				/* Detect mobile devices to determine if mobileHA should be turned on. */
-				isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+				isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(window.navigator.userAgent),
 				/* The mobileHA option's behavior changes on older Android devices (Gingerbread, versions 2.3.3-2.3.7). */
-				isAndroid: /Android/i.test(navigator.userAgent),
-				isGingerbread: /Android 2\.3\.[3-7]/i.test(navigator.userAgent),
+				isAndroid: /Android/i.test(window.navigator.userAgent),
+				isGingerbread: /Android 2\.3\.[3-7]/i.test(window.navigator.userAgent),
 				isChrome: window.chrome,
-				isFirefox: /Firefox/i.test(navigator.userAgent),
+				isFirefox: /Firefox/i.test(window.navigator.userAgent),
 				/* Create a cached element for re-use when checking for CSS property prefixes. */
 				prefixElement: document.createElement("div"),
 				/* Cache every prefix match to avoid repeating lookups. */
@@ -3865,7 +3865,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/*! VelocityJS
 			hook: null, /* Defined below. */
 			/* Velocity-wide animation time remapping for testing purposes. */
 			mock: false,
-			version: {major: 1, minor: 5, patch: 0},
+			version: {major: 1, minor: 5, patch: 1},
 			/* Set to 1 or 2 (most verbose) to output debug info to console. */
 			debug: false,
 			/* Use rAF high resolution timestamp when available */
@@ -6092,7 +6092,12 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/*! VelocityJS
 				/* Note: Velocity rolls its own delay function since jQuery doesn't have a utility alias for $.fn.delay()
 				 (and thus requires jQuery element creation, which we avoid since its overhead includes DOM querying). */
 				if (parseFloat(opts.delay) && opts.queue !== false) {
-					$.queue(element, opts.queue, function(next) {
+					$.queue(element, opts.queue, function(next, clearQueue) {
+						if (clearQueue === true) {
+							/* Do not continue with animation queueing. */
+							return true;
+						}
+
 						/* This is a flag used to indicate to the upcoming completeCall() function that this queue entry was initiated by Velocity. See completeCall() for further details. */
 						Velocity.velocityQueueEntryFlag = true;
 
@@ -7305,7 +7310,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/*! VelocityJS
 							call = callContainer[0],
 							opts = callContainer[2],
 							timeStart = callContainer[3],
-							firstTick = !!timeStart,
+							firstTick = !timeStart,
 							tweenDummyValue = null,
 							pauseObject = callContainer[5],
 							millisecondsEllapsed = callContainer[6];
@@ -7996,6 +8001,13 @@ exports.default = {
       }
     }
   },
+  watch: {
+    options: function options(oldOptions, newOptions) {
+      Object.keys(newOptions).forEach(function (key) {
+        if (this.grid._settings[key] != null) this.grid._settings = newOptions[key];
+      });
+    }
+  },
   created: function created() {
     self = this;
   },
@@ -8340,7 +8352,7 @@ exports.default = {
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
- * jQuery JavaScript Library v3.2.1
+ * jQuery JavaScript Library v3.3.1
  * https://jquery.com/
  *
  * Includes Sizzle.js
@@ -8350,7 +8362,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
  * Released under the MIT license
  * https://jquery.org/license
  *
- * Date: 2017-03-20T18:59Z
+ * Date: 2018-01-20T17:24Z
  */
 ( function( global, factory ) {
 
@@ -8412,16 +8424,57 @@ var ObjectFunctionString = fnToString.call( Object );
 
 var support = {};
 
+var isFunction = function isFunction( obj ) {
+
+      // Support: Chrome <=57, Firefox <=52
+      // In some browsers, typeof returns "function" for HTML <object> elements
+      // (i.e., `typeof document.createElement( "object" ) === "function"`).
+      // We don't want to classify *any* DOM node as a function.
+      return typeof obj === "function" && typeof obj.nodeType !== "number";
+  };
 
 
-	function DOMEval( code, doc ) {
+var isWindow = function isWindow( obj ) {
+		return obj != null && obj === obj.window;
+	};
+
+
+
+
+	var preservedScriptAttributes = {
+		type: true,
+		src: true,
+		noModule: true
+	};
+
+	function DOMEval( code, doc, node ) {
 		doc = doc || document;
 
-		var script = doc.createElement( "script" );
+		var i,
+			script = doc.createElement( "script" );
 
 		script.text = code;
+		if ( node ) {
+			for ( i in preservedScriptAttributes ) {
+				if ( node[ i ] ) {
+					script[ i ] = node[ i ];
+				}
+			}
+		}
 		doc.head.appendChild( script ).parentNode.removeChild( script );
 	}
+
+
+function toType( obj ) {
+	if ( obj == null ) {
+		return obj + "";
+	}
+
+	// Support: Android <=2.3 only (functionish RegExp)
+	return typeof obj === "object" || typeof obj === "function" ?
+		class2type[ toString.call( obj ) ] || "object" :
+		typeof obj;
+}
 /* global Symbol */
 // Defining this global in .eslintrc.json would create a danger of using the global
 // unguarded in another place, it seems safer to define global only for this module
@@ -8429,7 +8482,7 @@ var support = {};
 
 
 var
-	version = "3.2.1",
+	version = "3.3.1",
 
 	// Define a local copy of jQuery
 	jQuery = function( selector, context ) {
@@ -8441,16 +8494,7 @@ var
 
 	// Support: Android <=4.0 only
 	// Make sure we trim BOM and NBSP
-	rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g,
-
-	// Matches dashed string for camelizing
-	rmsPrefix = /^-ms-/,
-	rdashAlpha = /-([a-z])/g,
-
-	// Used by jQuery.camelCase as callback to replace()
-	fcamelCase = function( all, letter ) {
-		return letter.toUpperCase();
-	};
+	rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
 
 jQuery.fn = jQuery.prototype = {
 
@@ -8550,7 +8594,7 @@ jQuery.extend = jQuery.fn.extend = function() {
 	}
 
 	// Handle case when target is a string or something (possible in deep copy)
-	if ( typeof target !== "object" && !jQuery.isFunction( target ) ) {
+	if ( typeof target !== "object" && !isFunction( target ) ) {
 		target = {};
 	}
 
@@ -8616,28 +8660,6 @@ jQuery.extend( {
 
 	noop: function() {},
 
-	isFunction: function( obj ) {
-		return jQuery.type( obj ) === "function";
-	},
-
-	isWindow: function( obj ) {
-		return obj != null && obj === obj.window;
-	},
-
-	isNumeric: function( obj ) {
-
-		// As of jQuery 3.0, isNumeric is limited to
-		// strings and numbers (primitives or objects)
-		// that can be coerced to finite numbers (gh-2662)
-		var type = jQuery.type( obj );
-		return ( type === "number" || type === "string" ) &&
-
-			// parseFloat NaNs numeric-cast false positives ("")
-			// ...but misinterprets leading-number strings, particularly hex literals ("0x...")
-			// subtraction forces infinities to NaN
-			!isNaN( obj - parseFloat( obj ) );
-	},
-
 	isPlainObject: function( obj ) {
 		var proto, Ctor;
 
@@ -8671,27 +8693,9 @@ jQuery.extend( {
 		return true;
 	},
 
-	type: function( obj ) {
-		if ( obj == null ) {
-			return obj + "";
-		}
-
-		// Support: Android <=2.3 only (functionish RegExp)
-		return typeof obj === "object" || typeof obj === "function" ?
-			class2type[ toString.call( obj ) ] || "object" :
-			typeof obj;
-	},
-
 	// Evaluates a script in a global context
 	globalEval: function( code ) {
 		DOMEval( code );
-	},
-
-	// Convert dashed to camelCase; used by the css and data modules
-	// Support: IE <=9 - 11, Edge 12 - 13
-	// Microsoft forgot to hump their vendor prefix (#9572)
-	camelCase: function( string ) {
-		return string.replace( rmsPrefix, "ms-" ).replace( rdashAlpha, fcamelCase );
 	},
 
 	each: function( obj, callback ) {
@@ -8814,37 +8818,6 @@ jQuery.extend( {
 	// A global GUID counter for objects
 	guid: 1,
 
-	// Bind a function to a context, optionally partially applying any
-	// arguments.
-	proxy: function( fn, context ) {
-		var tmp, args, proxy;
-
-		if ( typeof context === "string" ) {
-			tmp = fn[ context ];
-			context = fn;
-			fn = tmp;
-		}
-
-		// Quick check to determine if target is callable, in the spec
-		// this throws a TypeError, but we will just return undefined.
-		if ( !jQuery.isFunction( fn ) ) {
-			return undefined;
-		}
-
-		// Simulated bind
-		args = slice.call( arguments, 2 );
-		proxy = function() {
-			return fn.apply( context || this, args.concat( slice.call( arguments ) ) );
-		};
-
-		// Set the guid of unique handler to the same of original handler, so it can be removed
-		proxy.guid = fn.guid = fn.guid || jQuery.guid++;
-
-		return proxy;
-	},
-
-	now: Date.now,
-
 	// jQuery.support is not used in Core but other projects attach their
 	// properties to it so it needs to exist.
 	support: support
@@ -8867,9 +8840,9 @@ function isArrayLike( obj ) {
 	// hasOwn isn't used here due to false negatives
 	// regarding Nodelist length in IE
 	var length = !!obj && "length" in obj && obj.length,
-		type = jQuery.type( obj );
+		type = toType( obj );
 
-	if ( type === "function" || jQuery.isWindow( obj ) ) {
+	if ( isFunction( obj ) || isWindow( obj ) ) {
 		return false;
 	}
 
@@ -11189,11 +11162,9 @@ var rsingleTag = ( /^<([a-z][^\/\0>:\x20\t\r\n\f]*)[\x20\t\r\n\f]*\/?>(?:<\/\1>|
 
 
 
-var risSimple = /^.[^:#\[\.,]*$/;
-
 // Implement the identical functionality for filter and not
 function winnow( elements, qualifier, not ) {
-	if ( jQuery.isFunction( qualifier ) ) {
+	if ( isFunction( qualifier ) ) {
 		return jQuery.grep( elements, function( elem, i ) {
 			return !!qualifier.call( elem, i, elem ) !== not;
 		} );
@@ -11213,16 +11184,8 @@ function winnow( elements, qualifier, not ) {
 		} );
 	}
 
-	// Simple selector that can be filtered directly, removing non-Elements
-	if ( risSimple.test( qualifier ) ) {
-		return jQuery.filter( qualifier, elements, not );
-	}
-
-	// Complex selector, compare the two sets, removing non-Elements
-	qualifier = jQuery.filter( qualifier, elements );
-	return jQuery.grep( elements, function( elem ) {
-		return ( indexOf.call( qualifier, elem ) > -1 ) !== not && elem.nodeType === 1;
-	} );
+	// Filtered directly for both simple and complex selectors
+	return jQuery.filter( qualifier, elements, not );
 }
 
 jQuery.filter = function( expr, elems, not ) {
@@ -11343,7 +11306,7 @@ var rootjQuery,
 						for ( match in context ) {
 
 							// Properties of context are called as methods if possible
-							if ( jQuery.isFunction( this[ match ] ) ) {
+							if ( isFunction( this[ match ] ) ) {
 								this[ match ]( context[ match ] );
 
 							// ...and otherwise set as attributes
@@ -11386,7 +11349,7 @@ var rootjQuery,
 
 		// HANDLE: $(function)
 		// Shortcut for document ready
-		} else if ( jQuery.isFunction( selector ) ) {
+		} else if ( isFunction( selector ) ) {
 			return root.ready !== undefined ?
 				root.ready( selector ) :
 
@@ -11701,11 +11664,11 @@ jQuery.Callbacks = function( options ) {
 
 					( function add( args ) {
 						jQuery.each( args, function( _, arg ) {
-							if ( jQuery.isFunction( arg ) ) {
+							if ( isFunction( arg ) ) {
 								if ( !options.unique || !self.has( arg ) ) {
 									list.push( arg );
 								}
-							} else if ( arg && arg.length && jQuery.type( arg ) !== "string" ) {
+							} else if ( arg && arg.length && toType( arg ) !== "string" ) {
 
 								// Inspect recursively
 								add( arg );
@@ -11820,11 +11783,11 @@ function adoptValue( value, resolve, reject, noValue ) {
 	try {
 
 		// Check for promise aspect first to privilege synchronous behavior
-		if ( value && jQuery.isFunction( ( method = value.promise ) ) ) {
+		if ( value && isFunction( ( method = value.promise ) ) ) {
 			method.call( value ).done( resolve ).fail( reject );
 
 		// Other thenables
-		} else if ( value && jQuery.isFunction( ( method = value.then ) ) ) {
+		} else if ( value && isFunction( ( method = value.then ) ) ) {
 			method.call( value, resolve, reject );
 
 		// Other non-thenables
@@ -11882,14 +11845,14 @@ jQuery.extend( {
 						jQuery.each( tuples, function( i, tuple ) {
 
 							// Map tuples (progress, done, fail) to arguments (done, fail, progress)
-							var fn = jQuery.isFunction( fns[ tuple[ 4 ] ] ) && fns[ tuple[ 4 ] ];
+							var fn = isFunction( fns[ tuple[ 4 ] ] ) && fns[ tuple[ 4 ] ];
 
 							// deferred.progress(function() { bind to newDefer or newDefer.notify })
 							// deferred.done(function() { bind to newDefer or newDefer.resolve })
 							// deferred.fail(function() { bind to newDefer or newDefer.reject })
 							deferred[ tuple[ 1 ] ]( function() {
 								var returned = fn && fn.apply( this, arguments );
-								if ( returned && jQuery.isFunction( returned.promise ) ) {
+								if ( returned && isFunction( returned.promise ) ) {
 									returned.promise()
 										.progress( newDefer.notify )
 										.done( newDefer.resolve )
@@ -11943,7 +11906,7 @@ jQuery.extend( {
 										returned.then;
 
 									// Handle a returned thenable
-									if ( jQuery.isFunction( then ) ) {
+									if ( isFunction( then ) ) {
 
 										// Special processors (notify) just wait for resolution
 										if ( special ) {
@@ -12039,7 +12002,7 @@ jQuery.extend( {
 							resolve(
 								0,
 								newDefer,
-								jQuery.isFunction( onProgress ) ?
+								isFunction( onProgress ) ?
 									onProgress :
 									Identity,
 								newDefer.notifyWith
@@ -12051,7 +12014,7 @@ jQuery.extend( {
 							resolve(
 								0,
 								newDefer,
-								jQuery.isFunction( onFulfilled ) ?
+								isFunction( onFulfilled ) ?
 									onFulfilled :
 									Identity
 							)
@@ -12062,7 +12025,7 @@ jQuery.extend( {
 							resolve(
 								0,
 								newDefer,
-								jQuery.isFunction( onRejected ) ?
+								isFunction( onRejected ) ?
 									onRejected :
 									Thrower
 							)
@@ -12102,8 +12065,15 @@ jQuery.extend( {
 					// fulfilled_callbacks.disable
 					tuples[ 3 - i ][ 2 ].disable,
 
+					// rejected_handlers.disable
+					// fulfilled_handlers.disable
+					tuples[ 3 - i ][ 3 ].disable,
+
 					// progress_callbacks.lock
-					tuples[ 0 ][ 2 ].lock
+					tuples[ 0 ][ 2 ].lock,
+
+					// progress_handlers.lock
+					tuples[ 0 ][ 3 ].lock
 				);
 			}
 
@@ -12173,7 +12143,7 @@ jQuery.extend( {
 
 			// Use .then() to unwrap secondary thenables (cf. gh-3000)
 			if ( master.state() === "pending" ||
-				jQuery.isFunction( resolveValues[ i ] && resolveValues[ i ].then ) ) {
+				isFunction( resolveValues[ i ] && resolveValues[ i ].then ) ) {
 
 				return master.then();
 			}
@@ -12301,7 +12271,7 @@ var access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
 		bulk = key == null;
 
 	// Sets many values
-	if ( jQuery.type( key ) === "object" ) {
+	if ( toType( key ) === "object" ) {
 		chainable = true;
 		for ( i in key ) {
 			access( elems, fn, i, key[ i ], true, emptyGet, raw );
@@ -12311,7 +12281,7 @@ var access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
 	} else if ( value !== undefined ) {
 		chainable = true;
 
-		if ( !jQuery.isFunction( value ) ) {
+		if ( !isFunction( value ) ) {
 			raw = true;
 		}
 
@@ -12353,6 +12323,23 @@ var access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
 
 	return len ? fn( elems[ 0 ], key ) : emptyGet;
 };
+
+
+// Matches dashed string for camelizing
+var rmsPrefix = /^-ms-/,
+	rdashAlpha = /-([a-z])/g;
+
+// Used by camelCase as callback to replace()
+function fcamelCase( all, letter ) {
+	return letter.toUpperCase();
+}
+
+// Convert dashed to camelCase; used by the css and data modules
+// Support: IE <=9 - 11, Edge 12 - 15
+// Microsoft forgot to hump their vendor prefix (#9572)
+function camelCase( string ) {
+	return string.replace( rmsPrefix, "ms-" ).replace( rdashAlpha, fcamelCase );
+}
 var acceptData = function( owner ) {
 
 	// Accepts only:
@@ -12415,14 +12402,14 @@ Data.prototype = {
 		// Handle: [ owner, key, value ] args
 		// Always use camelCase key (gh-2257)
 		if ( typeof data === "string" ) {
-			cache[ jQuery.camelCase( data ) ] = value;
+			cache[ camelCase( data ) ] = value;
 
 		// Handle: [ owner, { properties } ] args
 		} else {
 
 			// Copy the properties one-by-one to the cache object
 			for ( prop in data ) {
-				cache[ jQuery.camelCase( prop ) ] = data[ prop ];
+				cache[ camelCase( prop ) ] = data[ prop ];
 			}
 		}
 		return cache;
@@ -12432,7 +12419,7 @@ Data.prototype = {
 			this.cache( owner ) :
 
 			// Always use camelCase key (gh-2257)
-			owner[ this.expando ] && owner[ this.expando ][ jQuery.camelCase( key ) ];
+			owner[ this.expando ] && owner[ this.expando ][ camelCase( key ) ];
 	},
 	access: function( owner, key, value ) {
 
@@ -12480,9 +12467,9 @@ Data.prototype = {
 
 				// If key is an array of keys...
 				// We always set camelCase keys, so remove that.
-				key = key.map( jQuery.camelCase );
+				key = key.map( camelCase );
 			} else {
-				key = jQuery.camelCase( key );
+				key = camelCase( key );
 
 				// If a key with the spaces exists, use it.
 				// Otherwise, create an array by matching non-whitespace
@@ -12628,7 +12615,7 @@ jQuery.fn.extend( {
 						if ( attrs[ i ] ) {
 							name = attrs[ i ].name;
 							if ( name.indexOf( "data-" ) === 0 ) {
-								name = jQuery.camelCase( name.slice( 5 ) );
+								name = camelCase( name.slice( 5 ) );
 								dataAttr( elem, name, data[ name ] );
 							}
 						}
@@ -12875,8 +12862,7 @@ var swap = function( elem, options, callback, args ) {
 
 
 function adjustCSS( elem, prop, valueParts, tween ) {
-	var adjusted,
-		scale = 1,
+	var adjusted, scale,
 		maxIterations = 20,
 		currentValue = tween ?
 			function() {
@@ -12894,30 +12880,33 @@ function adjustCSS( elem, prop, valueParts, tween ) {
 
 	if ( initialInUnit && initialInUnit[ 3 ] !== unit ) {
 
+		// Support: Firefox <=54
+		// Halve the iteration target value to prevent interference from CSS upper bounds (gh-2144)
+		initial = initial / 2;
+
 		// Trust units reported by jQuery.css
 		unit = unit || initialInUnit[ 3 ];
-
-		// Make sure we update the tween properties later on
-		valueParts = valueParts || [];
 
 		// Iteratively approximate from a nonzero starting point
 		initialInUnit = +initial || 1;
 
-		do {
+		while ( maxIterations-- ) {
 
-			// If previous iteration zeroed out, double until we get *something*.
-			// Use string for doubling so we don't accidentally see scale as unchanged below
-			scale = scale || ".5";
-
-			// Adjust and apply
-			initialInUnit = initialInUnit / scale;
+			// Evaluate and update our best guess (doubling guesses that zero out).
+			// Finish if the scale equals or crosses 1 (making the old*new product non-positive).
 			jQuery.style( elem, prop, initialInUnit + unit );
+			if ( ( 1 - scale ) * ( 1 - ( scale = currentValue() / initial || 0.5 ) ) <= 0 ) {
+				maxIterations = 0;
+			}
+			initialInUnit = initialInUnit / scale;
 
-		// Update scale, tolerating zero or NaN from tween.cur()
-		// Break the loop if scale is unchanged or perfect, or if we've just had enough.
-		} while (
-			scale !== ( scale = currentValue() / initial ) && scale !== 1 && --maxIterations
-		);
+		}
+
+		initialInUnit = initialInUnit * 2;
+		jQuery.style( elem, prop, initialInUnit + unit );
+
+		// Make sure we update the tween properties later on
+		valueParts = valueParts || [];
 	}
 
 	if ( valueParts ) {
@@ -13035,7 +13024,7 @@ var rcheckableType = ( /^(?:checkbox|radio)$/i );
 
 var rtagName = ( /<([a-z][^\/\0>\x20\t\r\n\f]+)/i );
 
-var rscriptType = ( /^$|\/(?:java|ecma)script/i );
+var rscriptType = ( /^$|^module$|\/(?:java|ecma)script/i );
 
 
 
@@ -13117,7 +13106,7 @@ function buildFragment( elems, context, scripts, selection, ignored ) {
 		if ( elem || elem === 0 ) {
 
 			// Add nodes directly
-			if ( jQuery.type( elem ) === "object" ) {
+			if ( toType( elem ) === "object" ) {
 
 				// Support: Android <=4.0 only, PhantomJS 1 only
 				// push.apply(_, arraylike) throws on ancient WebKit
@@ -13627,7 +13616,7 @@ jQuery.event = {
 			enumerable: true,
 			configurable: true,
 
-			get: jQuery.isFunction( hook ) ?
+			get: isFunction( hook ) ?
 				function() {
 					if ( this.originalEvent ) {
 							return hook( this.originalEvent );
@@ -13762,7 +13751,7 @@ jQuery.Event = function( src, props ) {
 	}
 
 	// Create a timestamp if incoming event doesn't have one
-	this.timeStamp = src && src.timeStamp || jQuery.now();
+	this.timeStamp = src && src.timeStamp || Date.now();
 
 	// Mark it as fixed
 	this[ jQuery.expando ] = true;
@@ -13961,14 +13950,13 @@ var
 
 	/* eslint-enable */
 
-	// Support: IE <=10 - 11, Edge 12 - 13
+	// Support: IE <=10 - 11, Edge 12 - 13 only
 	// In IE/Edge using regex groups here causes severe slowdowns.
 	// See https://connect.microsoft.com/IE/feedback/details/1736512/
 	rnoInnerhtml = /<script|<style|<link/i,
 
 	// checked="checked" or checked
 	rchecked = /checked\s*(?:[^=]|=\s*.checked.)/i,
-	rscriptTypeMasked = /^true\/(.*)/,
 	rcleanScript = /^\s*<!(?:\[CDATA\[|--)|(?:\]\]|--)>\s*$/g;
 
 // Prefer a tbody over its parent table for containing new rows
@@ -13976,7 +13964,7 @@ function manipulationTarget( elem, content ) {
 	if ( nodeName( elem, "table" ) &&
 		nodeName( content.nodeType !== 11 ? content : content.firstChild, "tr" ) ) {
 
-		return jQuery( ">tbody", elem )[ 0 ] || elem;
+		return jQuery( elem ).children( "tbody" )[ 0 ] || elem;
 	}
 
 	return elem;
@@ -13988,10 +13976,8 @@ function disableScript( elem ) {
 	return elem;
 }
 function restoreScript( elem ) {
-	var match = rscriptTypeMasked.exec( elem.type );
-
-	if ( match ) {
-		elem.type = match[ 1 ];
+	if ( ( elem.type || "" ).slice( 0, 5 ) === "true/" ) {
+		elem.type = elem.type.slice( 5 );
 	} else {
 		elem.removeAttribute( "type" );
 	}
@@ -14057,15 +14043,15 @@ function domManip( collection, args, callback, ignored ) {
 		l = collection.length,
 		iNoClone = l - 1,
 		value = args[ 0 ],
-		isFunction = jQuery.isFunction( value );
+		valueIsFunction = isFunction( value );
 
 	// We can't cloneNode fragments that contain checked, in WebKit
-	if ( isFunction ||
+	if ( valueIsFunction ||
 			( l > 1 && typeof value === "string" &&
 				!support.checkClone && rchecked.test( value ) ) ) {
 		return collection.each( function( index ) {
 			var self = collection.eq( index );
-			if ( isFunction ) {
+			if ( valueIsFunction ) {
 				args[ 0 ] = value.call( this, index, self.html() );
 			}
 			domManip( self, args, callback, ignored );
@@ -14119,14 +14105,14 @@ function domManip( collection, args, callback, ignored ) {
 						!dataPriv.access( node, "globalEval" ) &&
 						jQuery.contains( doc, node ) ) {
 
-						if ( node.src ) {
+						if ( node.src && ( node.type || "" ).toLowerCase()  !== "module" ) {
 
 							// Optional AJAX dependency, but won't run scripts if not present
 							if ( jQuery._evalUrl ) {
 								jQuery._evalUrl( node.src );
 							}
 						} else {
-							DOMEval( node.textContent.replace( rcleanScript, "" ), doc );
+							DOMEval( node.textContent.replace( rcleanScript, "" ), doc, node );
 						}
 					}
 				}
@@ -14406,8 +14392,6 @@ jQuery.each( {
 		return this.pushStack( ret );
 	};
 } );
-var rmargin = ( /^margin/ );
-
 var rnumnonpx = new RegExp( "^(" + pnum + ")(?!px)[a-z%]+$", "i" );
 
 var getStyles = function( elem ) {
@@ -14424,6 +14408,8 @@ var getStyles = function( elem ) {
 		return view.getComputedStyle( elem );
 	};
 
+var rboxStyle = new RegExp( cssExpand.join( "|" ), "i" );
+
 
 
 ( function() {
@@ -14437,25 +14423,33 @@ var getStyles = function( elem ) {
 			return;
 		}
 
+		container.style.cssText = "position:absolute;left:-11111px;width:60px;" +
+			"margin-top:1px;padding:0;border:0";
 		div.style.cssText =
-			"box-sizing:border-box;" +
-			"position:relative;display:block;" +
+			"position:relative;display:block;box-sizing:border-box;overflow:scroll;" +
 			"margin:auto;border:1px;padding:1px;" +
-			"top:1%;width:50%";
-		div.innerHTML = "";
-		documentElement.appendChild( container );
+			"width:60%;top:1%";
+		documentElement.appendChild( container ).appendChild( div );
 
 		var divStyle = window.getComputedStyle( div );
 		pixelPositionVal = divStyle.top !== "1%";
 
 		// Support: Android 4.0 - 4.3 only, Firefox <=3 - 44
-		reliableMarginLeftVal = divStyle.marginLeft === "2px";
-		boxSizingReliableVal = divStyle.width === "4px";
+		reliableMarginLeftVal = roundPixelMeasures( divStyle.marginLeft ) === 12;
 
-		// Support: Android 4.0 - 4.3 only
+		// Support: Android 4.0 - 4.3 only, Safari <=9.1 - 10.1, iOS <=7.0 - 9.3
 		// Some styles come back with percentage values, even though they shouldn't
-		div.style.marginRight = "50%";
-		pixelMarginRightVal = divStyle.marginRight === "4px";
+		div.style.right = "60%";
+		pixelBoxStylesVal = roundPixelMeasures( divStyle.right ) === 36;
+
+		// Support: IE 9 - 11 only
+		// Detect misreporting of content dimensions for box-sizing:border-box elements
+		boxSizingReliableVal = roundPixelMeasures( divStyle.width ) === 36;
+
+		// Support: IE 9 only
+		// Detect overflow:scroll screwiness (gh-3699)
+		div.style.position = "absolute";
+		scrollboxSizeVal = div.offsetWidth === 36 || "absolute";
 
 		documentElement.removeChild( container );
 
@@ -14464,7 +14458,12 @@ var getStyles = function( elem ) {
 		div = null;
 	}
 
-	var pixelPositionVal, boxSizingReliableVal, pixelMarginRightVal, reliableMarginLeftVal,
+	function roundPixelMeasures( measure ) {
+		return Math.round( parseFloat( measure ) );
+	}
+
+	var pixelPositionVal, boxSizingReliableVal, scrollboxSizeVal, pixelBoxStylesVal,
+		reliableMarginLeftVal,
 		container = document.createElement( "div" ),
 		div = document.createElement( "div" );
 
@@ -14479,26 +14478,26 @@ var getStyles = function( elem ) {
 	div.cloneNode( true ).style.backgroundClip = "";
 	support.clearCloneStyle = div.style.backgroundClip === "content-box";
 
-	container.style.cssText = "border:0;width:8px;height:0;top:0;left:-9999px;" +
-		"padding:0;margin-top:1px;position:absolute";
-	container.appendChild( div );
-
 	jQuery.extend( support, {
-		pixelPosition: function() {
-			computeStyleTests();
-			return pixelPositionVal;
-		},
 		boxSizingReliable: function() {
 			computeStyleTests();
 			return boxSizingReliableVal;
 		},
-		pixelMarginRight: function() {
+		pixelBoxStyles: function() {
 			computeStyleTests();
-			return pixelMarginRightVal;
+			return pixelBoxStylesVal;
+		},
+		pixelPosition: function() {
+			computeStyleTests();
+			return pixelPositionVal;
 		},
 		reliableMarginLeft: function() {
 			computeStyleTests();
 			return reliableMarginLeftVal;
+		},
+		scrollboxSize: function() {
+			computeStyleTests();
+			return scrollboxSizeVal;
 		}
 	} );
 } )();
@@ -14530,7 +14529,7 @@ function curCSS( elem, name, computed ) {
 		// but width seems to be reliably pixels.
 		// This is against the CSSOM draft spec:
 		// https://drafts.csswg.org/cssom/#resolved-values
-		if ( !support.pixelMarginRight() && rnumnonpx.test( ret ) && rmargin.test( name ) ) {
+		if ( !support.pixelBoxStyles() && rnumnonpx.test( ret ) && rboxStyle.test( name ) ) {
 
 			// Remember the original values
 			width = style.width;
@@ -14635,87 +14634,120 @@ function setPositiveNumber( elem, value, subtract ) {
 		value;
 }
 
-function augmentWidthOrHeight( elem, name, extra, isBorderBox, styles ) {
-	var i,
-		val = 0;
+function boxModelAdjustment( elem, dimension, box, isBorderBox, styles, computedVal ) {
+	var i = dimension === "width" ? 1 : 0,
+		extra = 0,
+		delta = 0;
 
-	// If we already have the right measurement, avoid augmentation
-	if ( extra === ( isBorderBox ? "border" : "content" ) ) {
-		i = 4;
-
-	// Otherwise initialize for horizontal or vertical properties
-	} else {
-		i = name === "width" ? 1 : 0;
+	// Adjustment may not be necessary
+	if ( box === ( isBorderBox ? "border" : "content" ) ) {
+		return 0;
 	}
 
 	for ( ; i < 4; i += 2 ) {
 
-		// Both box models exclude margin, so add it if we want it
-		if ( extra === "margin" ) {
-			val += jQuery.css( elem, extra + cssExpand[ i ], true, styles );
+		// Both box models exclude margin
+		if ( box === "margin" ) {
+			delta += jQuery.css( elem, box + cssExpand[ i ], true, styles );
 		}
 
-		if ( isBorderBox ) {
+		// If we get here with a content-box, we're seeking "padding" or "border" or "margin"
+		if ( !isBorderBox ) {
 
-			// border-box includes padding, so remove it if we want content
-			if ( extra === "content" ) {
-				val -= jQuery.css( elem, "padding" + cssExpand[ i ], true, styles );
+			// Add padding
+			delta += jQuery.css( elem, "padding" + cssExpand[ i ], true, styles );
+
+			// For "border" or "margin", add border
+			if ( box !== "padding" ) {
+				delta += jQuery.css( elem, "border" + cssExpand[ i ] + "Width", true, styles );
+
+			// But still keep track of it otherwise
+			} else {
+				extra += jQuery.css( elem, "border" + cssExpand[ i ] + "Width", true, styles );
 			}
 
-			// At this point, extra isn't border nor margin, so remove border
-			if ( extra !== "margin" ) {
-				val -= jQuery.css( elem, "border" + cssExpand[ i ] + "Width", true, styles );
-			}
+		// If we get here with a border-box (content + padding + border), we're seeking "content" or
+		// "padding" or "margin"
 		} else {
 
-			// At this point, extra isn't content, so add padding
-			val += jQuery.css( elem, "padding" + cssExpand[ i ], true, styles );
+			// For "content", subtract padding
+			if ( box === "content" ) {
+				delta -= jQuery.css( elem, "padding" + cssExpand[ i ], true, styles );
+			}
 
-			// At this point, extra isn't content nor padding, so add border
-			if ( extra !== "padding" ) {
-				val += jQuery.css( elem, "border" + cssExpand[ i ] + "Width", true, styles );
+			// For "content" or "padding", subtract border
+			if ( box !== "margin" ) {
+				delta -= jQuery.css( elem, "border" + cssExpand[ i ] + "Width", true, styles );
 			}
 		}
 	}
 
-	return val;
+	// Account for positive content-box scroll gutter when requested by providing computedVal
+	if ( !isBorderBox && computedVal >= 0 ) {
+
+		// offsetWidth/offsetHeight is a rounded sum of content, padding, scroll gutter, and border
+		// Assuming integer scroll gutter, subtract the rest and round down
+		delta += Math.max( 0, Math.ceil(
+			elem[ "offset" + dimension[ 0 ].toUpperCase() + dimension.slice( 1 ) ] -
+			computedVal -
+			delta -
+			extra -
+			0.5
+		) );
+	}
+
+	return delta;
 }
 
-function getWidthOrHeight( elem, name, extra ) {
+function getWidthOrHeight( elem, dimension, extra ) {
 
 	// Start with computed style
-	var valueIsBorderBox,
-		styles = getStyles( elem ),
-		val = curCSS( elem, name, styles ),
-		isBorderBox = jQuery.css( elem, "boxSizing", false, styles ) === "border-box";
+	var styles = getStyles( elem ),
+		val = curCSS( elem, dimension, styles ),
+		isBorderBox = jQuery.css( elem, "boxSizing", false, styles ) === "border-box",
+		valueIsBorderBox = isBorderBox;
 
-	// Computed unit is not pixels. Stop here and return.
+	// Support: Firefox <=54
+	// Return a confounding non-pixel value or feign ignorance, as appropriate.
 	if ( rnumnonpx.test( val ) ) {
-		return val;
+		if ( !extra ) {
+			return val;
+		}
+		val = "auto";
 	}
 
 	// Check for style in case a browser which returns unreliable values
 	// for getComputedStyle silently falls back to the reliable elem.style
-	valueIsBorderBox = isBorderBox &&
-		( support.boxSizingReliable() || val === elem.style[ name ] );
+	valueIsBorderBox = valueIsBorderBox &&
+		( support.boxSizingReliable() || val === elem.style[ dimension ] );
 
-	// Fall back to offsetWidth/Height when value is "auto"
+	// Fall back to offsetWidth/offsetHeight when value is "auto"
 	// This happens for inline elements with no explicit setting (gh-3571)
-	if ( val === "auto" ) {
-		val = elem[ "offset" + name[ 0 ].toUpperCase() + name.slice( 1 ) ];
+	// Support: Android <=4.1 - 4.3 only
+	// Also use offsetWidth/offsetHeight for misreported inline dimensions (gh-3602)
+	if ( val === "auto" ||
+		!parseFloat( val ) && jQuery.css( elem, "display", false, styles ) === "inline" ) {
+
+		val = elem[ "offset" + dimension[ 0 ].toUpperCase() + dimension.slice( 1 ) ];
+
+		// offsetWidth/offsetHeight provide border-box values
+		valueIsBorderBox = true;
 	}
 
-	// Normalize "", auto, and prepare for extra
+	// Normalize "" and auto
 	val = parseFloat( val ) || 0;
 
-	// Use the active box-sizing model to add/subtract irrelevant styles
+	// Adjust for the element's box model
 	return ( val +
-		augmentWidthOrHeight(
+		boxModelAdjustment(
 			elem,
-			name,
+			dimension,
 			extra || ( isBorderBox ? "border" : "content" ),
 			valueIsBorderBox,
-			styles
+			styles,
+
+			// Provide the current computed size to request scroll gutter calculation (gh-3589)
+			val
 		)
 	) + "px";
 }
@@ -14756,9 +14788,7 @@ jQuery.extend( {
 
 	// Add in properties whose names you wish to fix before
 	// setting or getting the value
-	cssProps: {
-		"float": "cssFloat"
-	},
+	cssProps: {},
 
 	// Get and set the style property on a DOM Node
 	style: function( elem, name, value, extra ) {
@@ -14770,7 +14800,7 @@ jQuery.extend( {
 
 		// Make sure that we're working with the right name
 		var ret, type, hooks,
-			origName = jQuery.camelCase( name ),
+			origName = camelCase( name ),
 			isCustomProp = rcustomProp.test( name ),
 			style = elem.style;
 
@@ -14838,7 +14868,7 @@ jQuery.extend( {
 
 	css: function( elem, name, extra, styles ) {
 		var val, num, hooks,
-			origName = jQuery.camelCase( name ),
+			origName = camelCase( name ),
 			isCustomProp = rcustomProp.test( name );
 
 		// Make sure that we're working with the right name. We don't
@@ -14876,8 +14906,8 @@ jQuery.extend( {
 	}
 } );
 
-jQuery.each( [ "height", "width" ], function( i, name ) {
-	jQuery.cssHooks[ name ] = {
+jQuery.each( [ "height", "width" ], function( i, dimension ) {
+	jQuery.cssHooks[ dimension ] = {
 		get: function( elem, computed, extra ) {
 			if ( computed ) {
 
@@ -14893,29 +14923,41 @@ jQuery.each( [ "height", "width" ], function( i, name ) {
 					// in IE throws an error.
 					( !elem.getClientRects().length || !elem.getBoundingClientRect().width ) ?
 						swap( elem, cssShow, function() {
-							return getWidthOrHeight( elem, name, extra );
+							return getWidthOrHeight( elem, dimension, extra );
 						} ) :
-						getWidthOrHeight( elem, name, extra );
+						getWidthOrHeight( elem, dimension, extra );
 			}
 		},
 
 		set: function( elem, value, extra ) {
 			var matches,
-				styles = extra && getStyles( elem ),
-				subtract = extra && augmentWidthOrHeight(
+				styles = getStyles( elem ),
+				isBorderBox = jQuery.css( elem, "boxSizing", false, styles ) === "border-box",
+				subtract = extra && boxModelAdjustment(
 					elem,
-					name,
+					dimension,
 					extra,
-					jQuery.css( elem, "boxSizing", false, styles ) === "border-box",
+					isBorderBox,
 					styles
 				);
+
+			// Account for unreliable border-box dimensions by comparing offset* to computed and
+			// faking a content-box to get border and padding (gh-3699)
+			if ( isBorderBox && support.scrollboxSize() === styles.position ) {
+				subtract -= Math.ceil(
+					elem[ "offset" + dimension[ 0 ].toUpperCase() + dimension.slice( 1 ) ] -
+					parseFloat( styles[ dimension ] ) -
+					boxModelAdjustment( elem, dimension, "border", false, styles ) -
+					0.5
+				);
+			}
 
 			// Convert to pixels if value adjustment is needed
 			if ( subtract && ( matches = rcssNum.exec( value ) ) &&
 				( matches[ 3 ] || "px" ) !== "px" ) {
 
-				elem.style[ name ] = value;
-				value = jQuery.css( elem, name );
+				elem.style[ dimension ] = value;
+				value = jQuery.css( elem, dimension );
 			}
 
 			return setPositiveNumber( elem, value, subtract );
@@ -14959,7 +15001,7 @@ jQuery.each( {
 		}
 	};
 
-	if ( !rmargin.test( prefix ) ) {
+	if ( prefix !== "margin" ) {
 		jQuery.cssHooks[ prefix + suffix ].set = setPositiveNumber;
 	}
 } );
@@ -15130,7 +15172,7 @@ function createFxNow() {
 	window.setTimeout( function() {
 		fxNow = undefined;
 	} );
-	return ( fxNow = jQuery.now() );
+	return ( fxNow = Date.now() );
 }
 
 // Generate parameters to create a standard animation
@@ -15234,9 +15276,10 @@ function defaultPrefilter( elem, props, opts ) {
 	// Restrict "overflow" and "display" styles during box animations
 	if ( isBox && elem.nodeType === 1 ) {
 
-		// Support: IE <=9 - 11, Edge 12 - 13
+		// Support: IE <=9 - 11, Edge 12 - 15
 		// Record all 3 overflow attributes because IE does not infer the shorthand
-		// from identically-valued overflowX and overflowY
+		// from identically-valued overflowX and overflowY and Edge just mirrors
+		// the overflowX value there.
 		opts.overflow = [ style.overflow, style.overflowX, style.overflowY ];
 
 		// Identify a display type, preferring old show/hide data over the CSS cascade
@@ -15344,7 +15387,7 @@ function propFilter( props, specialEasing ) {
 
 	// camelCase, specialEasing and expand cssHook pass
 	for ( index in props ) {
-		name = jQuery.camelCase( index );
+		name = camelCase( index );
 		easing = specialEasing[ name ];
 		value = props[ index ];
 		if ( Array.isArray( value ) ) {
@@ -15469,9 +15512,9 @@ function Animation( elem, properties, options ) {
 	for ( ; index < length; index++ ) {
 		result = Animation.prefilters[ index ].call( animation, elem, props, animation.opts );
 		if ( result ) {
-			if ( jQuery.isFunction( result.stop ) ) {
+			if ( isFunction( result.stop ) ) {
 				jQuery._queueHooks( animation.elem, animation.opts.queue ).stop =
-					jQuery.proxy( result.stop, result );
+					result.stop.bind( result );
 			}
 			return result;
 		}
@@ -15479,7 +15522,7 @@ function Animation( elem, properties, options ) {
 
 	jQuery.map( props, createTween, animation );
 
-	if ( jQuery.isFunction( animation.opts.start ) ) {
+	if ( isFunction( animation.opts.start ) ) {
 		animation.opts.start.call( elem, animation );
 	}
 
@@ -15512,7 +15555,7 @@ jQuery.Animation = jQuery.extend( Animation, {
 	},
 
 	tweener: function( props, callback ) {
-		if ( jQuery.isFunction( props ) ) {
+		if ( isFunction( props ) ) {
 			callback = props;
 			props = [ "*" ];
 		} else {
@@ -15544,9 +15587,9 @@ jQuery.Animation = jQuery.extend( Animation, {
 jQuery.speed = function( speed, easing, fn ) {
 	var opt = speed && typeof speed === "object" ? jQuery.extend( {}, speed ) : {
 		complete: fn || !fn && easing ||
-			jQuery.isFunction( speed ) && speed,
+			isFunction( speed ) && speed,
 		duration: speed,
-		easing: fn && easing || easing && !jQuery.isFunction( easing ) && easing
+		easing: fn && easing || easing && !isFunction( easing ) && easing
 	};
 
 	// Go to the end state if fx are off
@@ -15573,7 +15616,7 @@ jQuery.speed = function( speed, easing, fn ) {
 	opt.old = opt.complete;
 
 	opt.complete = function() {
-		if ( jQuery.isFunction( opt.old ) ) {
+		if ( isFunction( opt.old ) ) {
 			opt.old.call( this );
 		}
 
@@ -15737,7 +15780,7 @@ jQuery.fx.tick = function() {
 		i = 0,
 		timers = jQuery.timers;
 
-	fxNow = jQuery.now();
+	fxNow = Date.now();
 
 	for ( ; i < timers.length; i++ ) {
 		timer = timers[ i ];
@@ -16090,7 +16133,7 @@ jQuery.each( [
 
 
 	// Strip and collapse whitespace according to HTML spec
-	// https://html.spec.whatwg.org/multipage/infrastructure.html#strip-and-collapse-whitespace
+	// https://infra.spec.whatwg.org/#strip-and-collapse-ascii-whitespace
 	function stripAndCollapse( value ) {
 		var tokens = value.match( rnothtmlwhite ) || [];
 		return tokens.join( " " );
@@ -16101,20 +16144,30 @@ function getClass( elem ) {
 	return elem.getAttribute && elem.getAttribute( "class" ) || "";
 }
 
+function classesToArray( value ) {
+	if ( Array.isArray( value ) ) {
+		return value;
+	}
+	if ( typeof value === "string" ) {
+		return value.match( rnothtmlwhite ) || [];
+	}
+	return [];
+}
+
 jQuery.fn.extend( {
 	addClass: function( value ) {
 		var classes, elem, cur, curValue, clazz, j, finalValue,
 			i = 0;
 
-		if ( jQuery.isFunction( value ) ) {
+		if ( isFunction( value ) ) {
 			return this.each( function( j ) {
 				jQuery( this ).addClass( value.call( this, j, getClass( this ) ) );
 			} );
 		}
 
-		if ( typeof value === "string" && value ) {
-			classes = value.match( rnothtmlwhite ) || [];
+		classes = classesToArray( value );
 
+		if ( classes.length ) {
 			while ( ( elem = this[ i++ ] ) ) {
 				curValue = getClass( elem );
 				cur = elem.nodeType === 1 && ( " " + stripAndCollapse( curValue ) + " " );
@@ -16143,7 +16196,7 @@ jQuery.fn.extend( {
 		var classes, elem, cur, curValue, clazz, j, finalValue,
 			i = 0;
 
-		if ( jQuery.isFunction( value ) ) {
+		if ( isFunction( value ) ) {
 			return this.each( function( j ) {
 				jQuery( this ).removeClass( value.call( this, j, getClass( this ) ) );
 			} );
@@ -16153,9 +16206,9 @@ jQuery.fn.extend( {
 			return this.attr( "class", "" );
 		}
 
-		if ( typeof value === "string" && value ) {
-			classes = value.match( rnothtmlwhite ) || [];
+		classes = classesToArray( value );
 
+		if ( classes.length ) {
 			while ( ( elem = this[ i++ ] ) ) {
 				curValue = getClass( elem );
 
@@ -16185,13 +16238,14 @@ jQuery.fn.extend( {
 	},
 
 	toggleClass: function( value, stateVal ) {
-		var type = typeof value;
+		var type = typeof value,
+			isValidValue = type === "string" || Array.isArray( value );
 
-		if ( typeof stateVal === "boolean" && type === "string" ) {
+		if ( typeof stateVal === "boolean" && isValidValue ) {
 			return stateVal ? this.addClass( value ) : this.removeClass( value );
 		}
 
-		if ( jQuery.isFunction( value ) ) {
+		if ( isFunction( value ) ) {
 			return this.each( function( i ) {
 				jQuery( this ).toggleClass(
 					value.call( this, i, getClass( this ), stateVal ),
@@ -16203,12 +16257,12 @@ jQuery.fn.extend( {
 		return this.each( function() {
 			var className, i, self, classNames;
 
-			if ( type === "string" ) {
+			if ( isValidValue ) {
 
 				// Toggle individual class names
 				i = 0;
 				self = jQuery( this );
-				classNames = value.match( rnothtmlwhite ) || [];
+				classNames = classesToArray( value );
 
 				while ( ( className = classNames[ i++ ] ) ) {
 
@@ -16267,7 +16321,7 @@ var rreturn = /\r/g;
 
 jQuery.fn.extend( {
 	val: function( value ) {
-		var hooks, ret, isFunction,
+		var hooks, ret, valueIsFunction,
 			elem = this[ 0 ];
 
 		if ( !arguments.length ) {
@@ -16296,7 +16350,7 @@ jQuery.fn.extend( {
 			return;
 		}
 
-		isFunction = jQuery.isFunction( value );
+		valueIsFunction = isFunction( value );
 
 		return this.each( function( i ) {
 			var val;
@@ -16305,7 +16359,7 @@ jQuery.fn.extend( {
 				return;
 			}
 
-			if ( isFunction ) {
+			if ( valueIsFunction ) {
 				val = value.call( this, i, jQuery( this ).val() );
 			} else {
 				val = value;
@@ -16447,18 +16501,24 @@ jQuery.each( [ "radio", "checkbox" ], function() {
 // Return jQuery for attributes-only inclusion
 
 
-var rfocusMorph = /^(?:focusinfocus|focusoutblur)$/;
+support.focusin = "onfocusin" in window;
+
+
+var rfocusMorph = /^(?:focusinfocus|focusoutblur)$/,
+	stopPropagationCallback = function( e ) {
+		e.stopPropagation();
+	};
 
 jQuery.extend( jQuery.event, {
 
 	trigger: function( event, data, elem, onlyHandlers ) {
 
-		var i, cur, tmp, bubbleType, ontype, handle, special,
+		var i, cur, tmp, bubbleType, ontype, handle, special, lastElement,
 			eventPath = [ elem || document ],
 			type = hasOwn.call( event, "type" ) ? event.type : event,
 			namespaces = hasOwn.call( event, "namespace" ) ? event.namespace.split( "." ) : [];
 
-		cur = tmp = elem = elem || document;
+		cur = lastElement = tmp = elem = elem || document;
 
 		// Don't do events on text and comment nodes
 		if ( elem.nodeType === 3 || elem.nodeType === 8 ) {
@@ -16510,7 +16570,7 @@ jQuery.extend( jQuery.event, {
 
 		// Determine event propagation path in advance, per W3C events spec (#9951)
 		// Bubble up to document, then to window; watch for a global ownerDocument var (#9724)
-		if ( !onlyHandlers && !special.noBubble && !jQuery.isWindow( elem ) ) {
+		if ( !onlyHandlers && !special.noBubble && !isWindow( elem ) ) {
 
 			bubbleType = special.delegateType || type;
 			if ( !rfocusMorph.test( bubbleType + type ) ) {
@@ -16530,7 +16590,7 @@ jQuery.extend( jQuery.event, {
 		// Fire handlers on the event path
 		i = 0;
 		while ( ( cur = eventPath[ i++ ] ) && !event.isPropagationStopped() ) {
-
+			lastElement = cur;
 			event.type = i > 1 ?
 				bubbleType :
 				special.bindType || type;
@@ -16562,7 +16622,7 @@ jQuery.extend( jQuery.event, {
 
 				// Call a native DOM method on the target with the same name as the event.
 				// Don't do default actions on window, that's where global variables be (#6170)
-				if ( ontype && jQuery.isFunction( elem[ type ] ) && !jQuery.isWindow( elem ) ) {
+				if ( ontype && isFunction( elem[ type ] ) && !isWindow( elem ) ) {
 
 					// Don't re-trigger an onFOO event when we call its FOO() method
 					tmp = elem[ ontype ];
@@ -16573,7 +16633,17 @@ jQuery.extend( jQuery.event, {
 
 					// Prevent re-triggering of the same event, since we already bubbled it above
 					jQuery.event.triggered = type;
+
+					if ( event.isPropagationStopped() ) {
+						lastElement.addEventListener( type, stopPropagationCallback );
+					}
+
 					elem[ type ]();
+
+					if ( event.isPropagationStopped() ) {
+						lastElement.removeEventListener( type, stopPropagationCallback );
+					}
+
 					jQuery.event.triggered = undefined;
 
 					if ( tmp ) {
@@ -16619,31 +16689,6 @@ jQuery.fn.extend( {
 } );
 
 
-jQuery.each( ( "blur focus focusin focusout resize scroll click dblclick " +
-	"mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave " +
-	"change select submit keydown keypress keyup contextmenu" ).split( " " ),
-	function( i, name ) {
-
-	// Handle event binding
-	jQuery.fn[ name ] = function( data, fn ) {
-		return arguments.length > 0 ?
-			this.on( name, null, data, fn ) :
-			this.trigger( name );
-	};
-} );
-
-jQuery.fn.extend( {
-	hover: function( fnOver, fnOut ) {
-		return this.mouseenter( fnOver ).mouseleave( fnOut || fnOver );
-	}
-} );
-
-
-
-
-support.focusin = "onfocusin" in window;
-
-
 // Support: Firefox <=44
 // Firefox doesn't have focus(in | out) events
 // Related ticket - https://bugzilla.mozilla.org/show_bug.cgi?id=687787
@@ -16687,7 +16732,7 @@ if ( !support.focusin ) {
 }
 var location = window.location;
 
-var nonce = jQuery.now();
+var nonce = Date.now();
 
 var rquery = ( /\?/ );
 
@@ -16745,7 +16790,7 @@ function buildParams( prefix, obj, traditional, add ) {
 			}
 		} );
 
-	} else if ( !traditional && jQuery.type( obj ) === "object" ) {
+	} else if ( !traditional && toType( obj ) === "object" ) {
 
 		// Serialize object item.
 		for ( name in obj ) {
@@ -16767,7 +16812,7 @@ jQuery.param = function( a, traditional ) {
 		add = function( key, valueOrFunction ) {
 
 			// If value is a function, invoke it and use its return value
-			var value = jQuery.isFunction( valueOrFunction ) ?
+			var value = isFunction( valueOrFunction ) ?
 				valueOrFunction() :
 				valueOrFunction;
 
@@ -16885,7 +16930,7 @@ function addToPrefiltersOrTransports( structure ) {
 			i = 0,
 			dataTypes = dataTypeExpression.toLowerCase().match( rnothtmlwhite ) || [];
 
-		if ( jQuery.isFunction( func ) ) {
+		if ( isFunction( func ) ) {
 
 			// For each dataType in the dataTypeExpression
 			while ( ( dataType = dataTypes[ i++ ] ) ) {
@@ -17357,7 +17402,7 @@ jQuery.extend( {
 		if ( s.crossDomain == null ) {
 			urlAnchor = document.createElement( "a" );
 
-			// Support: IE <=8 - 11, Edge 12 - 13
+			// Support: IE <=8 - 11, Edge 12 - 15
 			// IE throws exception on accessing the href property if url is malformed,
 			// e.g. http://example.com:80x/
 			try {
@@ -17415,8 +17460,8 @@ jQuery.extend( {
 			// Remember the hash so we can put it back
 			uncached = s.url.slice( cacheURL.length );
 
-			// If data is available, append data to url
-			if ( s.data ) {
+			// If data is available and should be processed, append data to url
+			if ( s.data && ( s.processData || typeof s.data === "string" ) ) {
 				cacheURL += ( rquery.test( cacheURL ) ? "&" : "?" ) + s.data;
 
 				// #9682: remove data so that it's not used in an eventual retry
@@ -17653,7 +17698,7 @@ jQuery.each( [ "get", "post" ], function( i, method ) {
 	jQuery[ method ] = function( url, data, callback, type ) {
 
 		// Shift arguments if data argument was omitted
-		if ( jQuery.isFunction( data ) ) {
+		if ( isFunction( data ) ) {
 			type = type || callback;
 			callback = data;
 			data = undefined;
@@ -17691,7 +17736,7 @@ jQuery.fn.extend( {
 		var wrap;
 
 		if ( this[ 0 ] ) {
-			if ( jQuery.isFunction( html ) ) {
+			if ( isFunction( html ) ) {
 				html = html.call( this[ 0 ] );
 			}
 
@@ -17717,7 +17762,7 @@ jQuery.fn.extend( {
 	},
 
 	wrapInner: function( html ) {
-		if ( jQuery.isFunction( html ) ) {
+		if ( isFunction( html ) ) {
 			return this.each( function( i ) {
 				jQuery( this ).wrapInner( html.call( this, i ) );
 			} );
@@ -17737,10 +17782,10 @@ jQuery.fn.extend( {
 	},
 
 	wrap: function( html ) {
-		var isFunction = jQuery.isFunction( html );
+		var htmlIsFunction = isFunction( html );
 
 		return this.each( function( i ) {
-			jQuery( this ).wrapAll( isFunction ? html.call( this, i ) : html );
+			jQuery( this ).wrapAll( htmlIsFunction ? html.call( this, i ) : html );
 		} );
 	},
 
@@ -17832,7 +17877,8 @@ jQuery.ajaxTransport( function( options ) {
 					return function() {
 						if ( callback ) {
 							callback = errorCallback = xhr.onload =
-								xhr.onerror = xhr.onabort = xhr.onreadystatechange = null;
+								xhr.onerror = xhr.onabort = xhr.ontimeout =
+									xhr.onreadystatechange = null;
 
 							if ( type === "abort" ) {
 								xhr.abort();
@@ -17872,7 +17918,7 @@ jQuery.ajaxTransport( function( options ) {
 
 				// Listen to events
 				xhr.onload = callback();
-				errorCallback = xhr.onerror = callback( "error" );
+				errorCallback = xhr.onerror = xhr.ontimeout = callback( "error" );
 
 				// Support: IE 9 only
 				// Use onreadystatechange to replace onabort
@@ -18026,7 +18072,7 @@ jQuery.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
 	if ( jsonProp || s.dataTypes[ 0 ] === "jsonp" ) {
 
 		// Get callback name, remembering preexisting value associated with it
-		callbackName = s.jsonpCallback = jQuery.isFunction( s.jsonpCallback ) ?
+		callbackName = s.jsonpCallback = isFunction( s.jsonpCallback ) ?
 			s.jsonpCallback() :
 			s.jsonpCallback;
 
@@ -18077,7 +18123,7 @@ jQuery.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
 			}
 
 			// Call if it was a function and we have a response
-			if ( responseContainer && jQuery.isFunction( overwritten ) ) {
+			if ( responseContainer && isFunction( overwritten ) ) {
 				overwritten( responseContainer[ 0 ] );
 			}
 
@@ -18169,7 +18215,7 @@ jQuery.fn.load = function( url, params, callback ) {
 	}
 
 	// If it's a function
-	if ( jQuery.isFunction( params ) ) {
+	if ( isFunction( params ) ) {
 
 		// We assume that it's the callback
 		callback = params;
@@ -18277,7 +18323,7 @@ jQuery.offset = {
 			curLeft = parseFloat( curCSSLeft ) || 0;
 		}
 
-		if ( jQuery.isFunction( options ) ) {
+		if ( isFunction( options ) ) {
 
 			// Use jQuery.extend here to allow modification of coordinates argument (gh-1848)
 			options = options.call( elem, i, jQuery.extend( {}, curOffset ) );
@@ -18300,6 +18346,8 @@ jQuery.offset = {
 };
 
 jQuery.fn.extend( {
+
+	// offset() relates an element's border box to the document origin
 	offset: function( options ) {
 
 		// Preserve chaining for setter
@@ -18311,7 +18359,7 @@ jQuery.fn.extend( {
 				} );
 		}
 
-		var doc, docElem, rect, win,
+		var rect, win,
 			elem = this[ 0 ];
 
 		if ( !elem ) {
@@ -18326,50 +18374,52 @@ jQuery.fn.extend( {
 			return { top: 0, left: 0 };
 		}
 
+		// Get document-relative position by adding viewport scroll to viewport-relative gBCR
 		rect = elem.getBoundingClientRect();
-
-		doc = elem.ownerDocument;
-		docElem = doc.documentElement;
-		win = doc.defaultView;
-
+		win = elem.ownerDocument.defaultView;
 		return {
-			top: rect.top + win.pageYOffset - docElem.clientTop,
-			left: rect.left + win.pageXOffset - docElem.clientLeft
+			top: rect.top + win.pageYOffset,
+			left: rect.left + win.pageXOffset
 		};
 	},
 
+	// position() relates an element's margin box to its offset parent's padding box
+	// This corresponds to the behavior of CSS absolute positioning
 	position: function() {
 		if ( !this[ 0 ] ) {
 			return;
 		}
 
-		var offsetParent, offset,
+		var offsetParent, offset, doc,
 			elem = this[ 0 ],
 			parentOffset = { top: 0, left: 0 };
 
-		// Fixed elements are offset from window (parentOffset = {top:0, left: 0},
-		// because it is its only offset parent
+		// position:fixed elements are offset from the viewport, which itself always has zero offset
 		if ( jQuery.css( elem, "position" ) === "fixed" ) {
 
-			// Assume getBoundingClientRect is there when computed position is fixed
+			// Assume position:fixed implies availability of getBoundingClientRect
 			offset = elem.getBoundingClientRect();
 
 		} else {
-
-			// Get *real* offsetParent
-			offsetParent = this.offsetParent();
-
-			// Get correct offsets
 			offset = this.offset();
-			if ( !nodeName( offsetParent[ 0 ], "html" ) ) {
-				parentOffset = offsetParent.offset();
-			}
 
-			// Add offsetParent borders
-			parentOffset = {
-				top: parentOffset.top + jQuery.css( offsetParent[ 0 ], "borderTopWidth", true ),
-				left: parentOffset.left + jQuery.css( offsetParent[ 0 ], "borderLeftWidth", true )
-			};
+			// Account for the *real* offset parent, which can be the document or its root element
+			// when a statically positioned element is identified
+			doc = elem.ownerDocument;
+			offsetParent = elem.offsetParent || doc.documentElement;
+			while ( offsetParent &&
+				( offsetParent === doc.body || offsetParent === doc.documentElement ) &&
+				jQuery.css( offsetParent, "position" ) === "static" ) {
+
+				offsetParent = offsetParent.parentNode;
+			}
+			if ( offsetParent && offsetParent !== elem && offsetParent.nodeType === 1 ) {
+
+				// Incorporate borders into its offset, since they are outside its content origin
+				parentOffset = jQuery( offsetParent ).offset();
+				parentOffset.top += jQuery.css( offsetParent, "borderTopWidth", true );
+				parentOffset.left += jQuery.css( offsetParent, "borderLeftWidth", true );
+			}
 		}
 
 		// Subtract parent offsets and element margins
@@ -18411,7 +18461,7 @@ jQuery.each( { scrollLeft: "pageXOffset", scrollTop: "pageYOffset" }, function( 
 
 			// Coalesce documents and windows
 			var win;
-			if ( jQuery.isWindow( elem ) ) {
+			if ( isWindow( elem ) ) {
 				win = elem;
 			} else if ( elem.nodeType === 9 ) {
 				win = elem.defaultView;
@@ -18469,7 +18519,7 @@ jQuery.each( { Height: "height", Width: "width" }, function( name, type ) {
 			return access( this, function( elem, type, value ) {
 				var doc;
 
-				if ( jQuery.isWindow( elem ) ) {
+				if ( isWindow( elem ) ) {
 
 					// $( window ).outerWidth/Height return w/h including scrollbars (gh-1729)
 					return funcName.indexOf( "outer" ) === 0 ?
@@ -18503,6 +18553,28 @@ jQuery.each( { Height: "height", Width: "width" }, function( name, type ) {
 } );
 
 
+jQuery.each( ( "blur focus focusin focusout resize scroll click dblclick " +
+	"mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave " +
+	"change select submit keydown keypress keyup contextmenu" ).split( " " ),
+	function( i, name ) {
+
+	// Handle event binding
+	jQuery.fn[ name ] = function( data, fn ) {
+		return arguments.length > 0 ?
+			this.on( name, null, data, fn ) :
+			this.trigger( name );
+	};
+} );
+
+jQuery.fn.extend( {
+	hover: function( fnOver, fnOut ) {
+		return this.mouseenter( fnOver ).mouseleave( fnOut || fnOver );
+	}
+} );
+
+
+
+
 jQuery.fn.extend( {
 
 	bind: function( types, data, fn ) {
@@ -18524,6 +18596,37 @@ jQuery.fn.extend( {
 	}
 } );
 
+// Bind a function to a context, optionally partially applying any
+// arguments.
+// jQuery.proxy is deprecated to promote standards (specifically Function#bind)
+// However, it is not slated for removal any time soon
+jQuery.proxy = function( fn, context ) {
+	var tmp, args, proxy;
+
+	if ( typeof context === "string" ) {
+		tmp = fn[ context ];
+		context = fn;
+		fn = tmp;
+	}
+
+	// Quick check to determine if target is callable, in the spec
+	// this throws a TypeError, but we will just return undefined.
+	if ( !isFunction( fn ) ) {
+		return undefined;
+	}
+
+	// Simulated bind
+	args = slice.call( arguments, 2 );
+	proxy = function() {
+		return fn.apply( context || this, args.concat( slice.call( arguments ) ) );
+	};
+
+	// Set the guid of unique handler to the same of original handler, so it can be removed
+	proxy.guid = fn.guid = fn.guid || jQuery.guid++;
+
+	return proxy;
+};
+
 jQuery.holdReady = function( hold ) {
 	if ( hold ) {
 		jQuery.readyWait++;
@@ -18534,6 +18637,26 @@ jQuery.holdReady = function( hold ) {
 jQuery.isArray = Array.isArray;
 jQuery.parseJSON = JSON.parse;
 jQuery.nodeName = nodeName;
+jQuery.isFunction = isFunction;
+jQuery.isWindow = isWindow;
+jQuery.camelCase = camelCase;
+jQuery.type = toType;
+
+jQuery.now = Date.now;
+
+jQuery.isNumeric = function( obj ) {
+
+	// As of jQuery 3.0, isNumeric is limited to
+	// strings and numbers (primitives or objects)
+	// that can be coerced to finite numbers (gh-2662)
+	var type = jQuery.type( obj );
+	return ( type === "number" || type === "string" ) &&
+
+		// parseFloat NaNs numeric-cast false positives ("")
+		// ...but misinterprets leading-number strings, particularly hex literals ("0x...")
+		// subtraction forces infinities to NaN
+		!isNaN( obj - parseFloat( obj ) );
+};
 
 
 
@@ -18600,7 +18723,7 @@ return jQuery;
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
- * Muuri v0.4.0
+ * Muuri v0.4.1
  * https://github.com/haltu/muuri
  * Copyright (c) 2015, Haltu Oy
  *
@@ -18816,7 +18939,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
     // Create instance settings by merging the options with default options.
     settings = inst._settings = mergeSettings(Grid.defaultOptions, options);
 
-    // Create instance id and store it to the grid instances collection.;
+    // Create instance id and store it to the grid instances collection.
     gridInstances[inst._id = ++uuid] = inst;
 
     // Destroyed flag.
@@ -19115,7 +19238,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
       for (i = 0; i < targetItems.length; i++) {
         item = hasTargets ? inst._getItem(targetItems[i]) : targetItems[i];
         if (item && (!targetState || isItemInState(item, targetState))) {
-          ret[ret.length] = item;
+          ret.push(item);
         }
       }
       return ret;
@@ -19307,12 +19430,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
       tryFinish();
       return inst;
     }
+
     // If there are items let's get window's width/height for the layout
     // animation optimization algorithm.
-    else {
-      winWidth = window.innerWidth;
-      winHeight = window.innerHeight;
-    }
+    winWidth = global.innerWidth;
+    winHeight = global.innerHeight;
 
     // If there are items let's position them.
     for (i = 0; i < items.length; i++) {
@@ -19394,7 +19516,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
     for (i = 0; i < targetElements.length; i++) {
 
       item = new Grid.Item(inst, targetElements[i]);
-      newItems[newItems.length] = item;
+      newItems.push(item);
 
       // If the item to be added is active, we need to do a layout. Also, we
       // need to mark the item with the skipNextLayoutAnimation flag to make it
@@ -20151,6 +20273,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
     inst._isHiding = false;
     inst._isShowing = false;
 
+    // Layout animation init cache.
+    inst._layoutAnimateInitRead = null;
+    inst._layoutAnimateInitWrite = null;
+
     // Visibility animation callback queue. Whenever a callback is provided for
     // show/hide methods and animation is enabled the callback is stored
     // temporarily to this array. The callbacks are called with the first
@@ -20404,40 +20530,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
    */
 
   /**
-   * Stop item's position animation if it is currently animating.
-   *
-   * @protected
-   * @memberof Item.prototype
-   * @param {Boolean} [processLayoutQueue=false]
-   * @returns {Item}
-   */
-  Item.prototype._stopLayout = function (processLayoutQueue) {
-
-    var inst = this;
-
-    if (inst._isDestroyed || !inst._isPositioning) {
-      return inst;
-    }
-
-    // Stop animation.
-    inst._animate.stop();
-
-    // Remove positioning class.
-    removeClass(inst._element, inst.getGrid()._settings.itemPositioningClass);
-
-    // Reset state.
-    inst._isPositioning = false;
-
-    // Process callback queue.
-    if (processLayoutQueue) {
-      processQueue(inst._layoutQueue, true, inst);
-    }
-
-    return inst;
-
-  };
-
-  /**
    * Recalculate item's dimensions.
    *
    * @protected
@@ -20537,7 +20629,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
     var offsetTop;
     var currentLeft;
     var currentTop;
-    var finishLayout;
 
     // Return immediately if the instance is destroyed.
     if (inst._isDestroyed) {
@@ -20550,30 +20641,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
     animDuration = isJustReleased ? settings.dragReleaseDuration : settings.layoutDuration;
     animEasing = isJustReleased ? settings.dragReleaseEasing : settings.layoutEasing;
     animEnabled = !instant && !inst._skipNextLayoutAnimation && animDuration > 0;
-
-    // Create the layout callback.
-    finishLayout = function () {
-
-      // Mark the item as not positioning and remove positioning classes.
-      if (inst._isPositioning) {
-        inst._isPositioning = false;
-        removeClass(element, settings.itemPositioningClass);
-      }
-
-      // Finish up release.
-      if (release.isActive) {
-        release.stop();
-      }
-
-      // Finish up migration.
-      if (migrate.isActive) {
-        migrate.stop();
-      }
-
-      // Process the callback queue.
-      processQueue(inst._layoutQueue, false, inst);
-
-    };
 
     // Process current layout callback queue with interrupted flag on if the
     // item is currently positioning.
@@ -20588,18 +20655,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
     // Push the callback to the callback queue.
     if (typeof onFinish === typeFunction) {
-      inst._layoutQueue[inst._layoutQueue.length] = onFinish;
+      inst._layoutQueue.push(onFinish);
     }
 
     // Get item container offset. This applies only for release handling in the
     // scenario where the released element is not currently within the
     // grid container element.
-    offsetLeft = release.isActive ? release.containerDiffX :
-                 migrate.isActive ? migrate.containerDiffX :
-                 0;
-    offsetTop = release.isActive ? release.containerDiffY :
-                migrate.isActive ? migrate.containerDiffY :
-                0;
+    offsetLeft = release.isActive ? release.containerDiffX : migrate.isActive ? migrate.containerDiffX : 0;
+    offsetTop = release.isActive ? release.containerDiffY : migrate.isActive ? migrate.containerDiffY : 0;
 
     // If no animations are needed, easy peasy!
     if (!animEnabled) {
@@ -20607,40 +20670,24 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
       inst._stopLayout();
       inst._skipNextLayoutAnimation = false;
 
-      // Set the styles only if they are not set later on. If an item is being
-      // released after drag and the drag container is something else than the
-      // Grid's container element these styles will be set after the item has
-      // been moved back to the Grid's element, which also means that setting
-      // the styles here in that scenario is a waste of resources.
-      if (!(release.isActive && element.parentNode !== grid._element) || !(migrate.isActive && migrate.container !== grid._element)) {
-        setStyles(element, {
-          transform: 'translateX(' + (inst._left + offsetLeft) + 'px) translateY(' + (inst._top + offsetTop) + 'px)'
-        });
-      }
+      setStyles(element, {
+        transform: 'translateX(' + (inst._left + offsetLeft) + 'px) translateY(' + (inst._top + offsetTop) + 'px)'
+      });
 
-      finishLayout();
+      inst._finishLayout();
 
     }
 
     // If animations are needed, let's dive in.
     else {
 
-      // Get current (relative) left and top position. Meaning that the
-      // container's offset (if applicable) is subtracted from the current
-      // translate values.
-      if (isPositioning && inst._isDefaultAnimate) {
-        currentLeft = parseFloat(Velocity.hook(element, 'translateX')) - offsetLeft;
-        currentTop = parseFloat(Velocity.hook(element, 'translateY')) - offsetTop;
-      }
-      else {
-        currentLeft = getTranslateAsFloat(element, 'x') - offsetLeft;
-        currentTop = getTranslateAsFloat(element, 'y') - offsetTop;
-      }
+      // Get item's current left and top values.
+      currentLeft = getTranslateAsFloat(element, 'x') - offsetLeft;
+      currentTop = getTranslateAsFloat(element, 'y') - offsetTop;
 
       // If the item is already in correct position let's quit early.
       if (inst._left === currentLeft && inst._top === currentTop) {
-        inst._stopLayout();
-        finishLayout();
+        inst._stopLayout()._finishLayout();
         return;
       }
 
@@ -20660,7 +20707,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
       }, {
         duration: animDuration,
         easing: animEasing,
-        onFinish: finishLayout
+        onFinish: function () {
+          inst._finishLayout();
+        }
       });
 
     }
@@ -20670,14 +20719,77 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
   };
 
   /**
-   * Show item.
+   * Position item based on it's current data.
    *
    * @protected
    * @memberof Item.prototype
-   * @param {Boolean} instant
-   * @param {Function} [onFinish]
    * @returns {Item}
    */
+  Item.prototype._finishLayout = function () {
+
+    var inst = this;
+
+    if (inst._isDestroyed) {
+      return inst;
+    }
+
+    // Mark the item as not positioning and remove positioning classes.
+    if (inst._isPositioning) {
+      inst._isPositioning = false;
+      removeClass(inst._element, inst.getGrid()._settings.itemPositioningClass);
+    }
+
+    // Finish up release.
+    if (inst._release.isActive) {
+      inst._release.stop();
+    }
+
+    // Finish up migration.
+    if (inst._migrate.isActive) {
+      inst._migrate.stop();
+    }
+
+    // Process the callback queue.
+    processQueue(inst._layoutQueue, false, inst);
+
+    return inst;
+
+  };
+
+  /**
+   * Stop item's position animation if it is currently animating.
+   *
+   * @protected
+   * @memberof Item.prototype
+   * @param {Boolean} [processLayoutQueue=false]
+   * @returns {Item}
+   */
+  Item.prototype._stopLayout = function (processLayoutQueue) {
+
+    var inst = this;
+
+    if (inst._isDestroyed || !inst._isPositioning) {
+      return inst;
+    }
+
+    // Stop animation.
+    inst._animate.stop();
+
+    // Remove positioning class.
+    removeClass(inst._element, inst.getGrid()._settings.itemPositioningClass);
+
+    // Reset state.
+    inst._isPositioning = false;
+
+    // Process callback queue.
+    if (processLayoutQueue) {
+      processQueue(inst._layoutQueue, true, inst);
+    }
+
+    return inst;
+
+  };
+
   Item.prototype._show = function (instant, onFinish) {
 
     var inst = this;
@@ -20692,80 +20804,51 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
       return inst;
     }
 
+    // If item is visible call the callback and be done with it.
+    if (!inst._isShowing && !inst._isHidden) {
+      callback && callback(false, inst);
+      return inst;
+    }
+
     // Get grid and settings.
     grid = inst.getGrid();
     settings = grid._settings;
 
     // If item is showing.
     if (inst._isShowing) {
-
-      // If instant flag is on, interrupt the current animation and set the
-      // visible styles.
-      if (instant) {
-        grid._itemShowHandler.stop(inst);
-        processQueue(queue, true, inst);
-        if (callback) {
-          queue[queue.length] = callback;
-        }
-        grid._itemShowHandler.start(inst, instant, function () {
-          inst._isShowing = false;
-          processQueue(queue, false, inst);
-        });
-      }
-
-      // Otherwise just push the callback to the queue.
-      else if (callback) {
-        queue[queue.length] = callback;
-      }
-
+      callback && queue.push(callback);
+      instant && grid._itemShowHandler.stop(inst);
     }
 
-    // Otherwise if item is visible call the callback and be done with it.
-    else if (!inst._isHidden) {
-      callback && callback(false, inst);
-    }
-
-    // Finally if item is hidden or hiding, show it.
+    // Otherwise if item is hidden or hiding, show it.
     else {
 
       // Stop ongoing hide animation.
-      if (inst._isHiding) {
-        grid._itemHideHandler.stop(inst);
-        inst._isHiding = false;
-      }
-
-      // Update item classes.
-      addClass(element, settings.itemVisibleClass);
-      removeClass(element, settings.itemHiddenClass);
-
-      // Set item element's display style to block.
-      setStyles(element, {display: 'block'});
-
-      // Refresh item's dimensions if item is hidden.
-      if (inst._isHidden) {
-        inst._isHidden = false;
-        inst._refreshDimensions();
-      }
-
-      // Update item's internal active and showing states.
-      inst._isActive = inst._isShowing = true;
+      inst._isHidden && grid._itemHideHandler.stop(inst);
 
       // Process the visibility callback queue with the interrupted flag active.
       processQueue(queue, true, inst);
 
-      // Push the callback to the visibility callback queue.
-      if (callback) {
-        queue[queue.length] = callback;
-      }
+      // Update item's internal states.
+      inst._isActive = inst._isShowing = true;
+      inst._isHiding = inst._isHidden = false;
 
-      // Animate child element and process the visibility callback queue after
-      // succesful animation.
-      grid._itemShowHandler.start(inst, instant, function () {
-        inst._isShowing = false;
-        processQueue(queue, false, inst);
-      });
+      // Push the callback to the visibility callback queue.
+      callback && queue.push(callback);
+
+      // Update item classes and set item element's display style to block.
+      setStyles(element, {display: 'block'});
+      removeClass(element, settings.itemHiddenClass);
+      addClass(element, settings.itemVisibleClass);
 
     }
+
+    // Animate child element and process the visibility callback queue after
+    // succesful animation.
+    grid._itemShowHandler.start(inst, instant, function () {
+      inst._isShowing = false;
+      processQueue(queue, false, inst);
+    });
 
     return inst;
 
@@ -20798,69 +20881,48 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
     grid = inst.getGrid();
     settings = grid._settings;
 
+    // If item is already hidden call the callback and be done with it.
+    if (!inst._isHiding && inst._isHidden) {
+      callback && callback(false, inst);
+      return inst;
+    }
+
     // If item is hiding.
     if (inst._isHiding) {
-
-      // If instant flag is on, interrupt the current animation and set the
-      // hidden styles.
-      if (instant) {
-        grid._itemHideHandler.stop(inst);
-        processQueue(queue, true, inst);
-        if (callback) {
-          queue[queue.length] = callback;
-        }
-        grid._itemHideHandler.start(inst, instant, function () {
-          inst._isHiding = false;
-          setStyles(element, {display: 'none'});
-          processQueue(queue, false, inst);
-        });
-      }
-
-      // Otherwise just push the callback to the queue.
-      else if (callback) {
-        queue[queue.length] = callback;
-      }
-
+      callback && queue.push(callback);
+      instant && grid._itemHideHandler.stop(inst);
     }
 
-    // Otherwise if item is hidden call the callback and be done with it.
-    else if (inst._isHidden) {
-      callback && callback(false, inst);
-    }
-
-    // Finally if item is visible or showing, hide it.
+    // Otherwise if item is visible or showing, hide it.
     else {
 
       // Stop ongoing show animation.
-      if (inst._isShowing) {
-        grid._itemShowHandler.stop(inst);
-      }
+      inst._isShowing && grid._itemShowHandler.stop(inst);
+
+      // Process the visibility callback queue with the interrupted flag active.
+      processQueue(queue, true, inst);
 
       // Update item's internal state.
       inst._isHidden = inst._isHiding = true;
       inst._isActive = inst._isShowing = false;
 
+      // Push the callback to the visibility callback queue.
+      callback && queue.push(callback);
+
       // Update item classes.
       addClass(element, settings.itemHiddenClass);
       removeClass(element, settings.itemVisibleClass);
 
-      // Process the visibility callback queue with the interrupted flag active.
-      processQueue(queue, true, inst);
-
-      // Push the callback to the visibility callback queue.
-      if (typeof callback === typeFunction) {
-        queue[queue.length] = callback;
-      }
-
-      // Animate child element and process the visibility callback queue after
-      // succesful animation.
-      grid._itemHideHandler.start(inst, instant, function () {
-        inst._isHiding = false;
-        setStyles(element, {display: 'none'});
-        processQueue(queue, false, inst);
-      });
-
     }
+
+    // Animate child element and process the visibility callback queue after
+    // succesful animation.
+    grid._itemHideHandler.start(inst, instant, function () {
+      inst._isHiding = false;
+      inst._stopLayout(true);
+      setStyles(element, {display: 'none'});
+      processQueue(queue, false, inst);
+    });
 
     return inst;
 
@@ -21024,7 +21086,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
     }
 
     var listeners = this._events[event] || [];
-    listeners[listeners.length] = listener;
+    listeners.push(listener);
     this._events[event] = listeners;
 
     return this;
@@ -21193,13 +21255,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
     var element = inst._element;
     var opts = options || {};
     var callback = typeof opts.onFinish === typeFunction ? opts.onFinish : null;
+    var isAnimating = inst._isAnimating;
 
     // If item is being animate check if the target animation properties equal
     // to the properties in the current animation. If they match we can just let
     // the animation continue and be done with it (and of course change the
     // cached callback). If the animation properties do not match we need to
     // stop the ongoing animation.
-    if (inst._isAnimating) {
+    if (isAnimating) {
       if (inst._shouldStop(propsTarget)) {
         inst.stop();
       }
@@ -21214,14 +21277,20 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
     inst._animateTo = propsTarget;
     inst._callback = callback;
 
-    // If we can skip the animation let's just set the styles.
+    // If we can skip the animation let's just set the styles and finish up.
     if (!inst._shouldAnimate(propsCurrent, propsTarget)) {
       hookStyles(element, propsTarget);
       inst._onFinish();
     }
+
     // Otherwise let's do the animation.
     else {
-      propsCurrent && hookStyles(element, propsCurrent);
+
+      // If the element was not animating and we have access to current props,
+      // let's hook them up before starting the animation.
+      !isAnimating && propsCurrent && hookStyles(element, propsCurrent);
+
+      // Setup the Velocity animation.
       Velocity(element, propsTarget, {
         duration: opts.duration || 300,
         easing: opts.easing || 'ease',
@@ -21230,7 +21299,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
           inst._onFinish();
         }
       });
+
+      // Start the Velocity animation.
       Velocity.Utilities.dequeue(element, inst._id);
+
     }
 
   };
@@ -21318,7 +21390,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
   };
 
   /**
-   * Check if item needs to animate at all.
+   * Check if item needs to animate at all. This optimization is effective only
+   * for layout animations in specific scenarios. Visibility animations are
+   * always triggered.
    *
    * @protected
    * @memberof ItemAnimate.prototype
@@ -21328,15 +21402,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
    */
   ItemAnimate.prototype._shouldAnimate = function (animateFrom, animateTo) {
 
-    // TODO: Currently visibility animations are always animated because there
-    // are some major issues figuring out when to animate and when not to, which
-    // is why we always animate visibility animations. The main problem is that
-    // the visibility animation is triggered before the possible auto-layout
-    // which means that it does not have access to the latest layout data and
-    // thus can't accurately check if the item should animate or not. To fix
-    // this we need to change the order of the auto-layout so that it would be
-    // called before the visibility animations are triggered.
-
     var inst = this;
     var item = inst._item;
     var isLayoutAnimation = inst._element === item._element;
@@ -21344,8 +21409,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
     var viewRect;
     var itemRect;
 
-    // If this is visibility animation or if the item is being
-    // released/migrated/dragged let's always animate.
+    // If this is visibility animation or if the item is being released,
+    // migrated or dragged let's always animate.
     if (!isLayoutAnimation || item.isReleasing() || item.isDragging() || item._migrate.isActive) {
       return true;
     }
@@ -21800,8 +21865,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
     // Position the released item and get window's width/height for the layout
     // animation optimization algorithm.
-    winWidth = window.innerWidth;
-    winHeight = window.innerHeight;
+    winWidth = global.innerWidth;
+    winHeight = global.innerHeight;
     item._layout(false);
 
     return release;
@@ -22492,7 +22557,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
   /**
    * If item is dragged into another grid, finish the migration process
    * gracefully.
-   *
+   * 
    * @public
    * @memberof ItemDrag.prototype
    * @returns {ItemDrag}
@@ -22505,9 +22570,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
     var element = item._element;
     var targetGrid = item.getGrid();
     var targetGridElement = targetGrid._element;
-    var targetStn = targetGrid._settings;
-    var targetContainer = targetStn.dragContainer || targetGridElement;
-    var currentStn = drag.getGrid()._settings;
+    var targetSettings = targetGrid._settings;
+    var targetContainer = targetSettings.dragContainer || targetGridElement;
+    var currentSettings = drag.getGrid()._settings;
     var currentContainer = element.parentNode;
     var translateX;
     var translateY;
@@ -22524,13 +22589,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
     item._animateChild.destroy();
 
     // Remove current classnames.
-    removeClass(element, currentStn.itemClass);
-    removeClass(element, currentStn.itemVisibleClass);
-    removeClass(element, currentStn.itemHiddenClass);
+    removeClass(element, currentSettings.itemClass);
+    removeClass(element, currentSettings.itemVisibleClass);
+    removeClass(element, currentSettings.itemHiddenClass);
 
     // Add new classnames.
-    addClass(element, targetStn.itemClass);
-    addClass(element, targetStn.itemVisibleClass);
+    addClass(element, targetSettings.itemClass);
+    addClass(element, targetSettings.itemVisibleClass);
 
     // Instantiate new animation controllers.
     item._animate = new Grid.ItemAnimate(item, element);
@@ -22542,27 +22607,36 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
     if (targetContainer !== currentContainer) {
       targetContainer.appendChild(element);
       offsetDiff = getOffsetDiff(currentContainer, targetContainer, true);
-      translateX = getTranslateAsFloat(element, 'x') + offsetDiff.left;
-      translateY = getTranslateAsFloat(element, 'y') + offsetDiff.top;
-      setStyles(element, {
-        transform: 'translateX(' + translateX + 'px) translateY(' + translateY + 'px)'
-      });
+      translateX = getTranslateAsFloat(element, 'x') - offsetDiff.left;
+      translateY = getTranslateAsFloat(element, 'y') - offsetDiff.top;
     }
 
     // Update item's cached dimensions and sort data.
     item._refreshDimensions()._refreshSortData();
 
+    // Calculate the offset difference between target's drag container (if any)
+    // and actual grid container element. We save it later for the release
+    // process.
+    offsetDiff = getOffsetDiff(targetContainer, targetGridElement, true);
+    release.containerDiffX = offsetDiff.left;
+    release.containerDiffY = offsetDiff.top;
+
+    // Recreate item's drag handler.
+    item._drag = targetSettings.dragEnabled ? new Grid.ItemDrag(item) : null;
+
+    // Adjust the position of the item element if it was moved from a container
+    // to another.
+    if (targetContainer !== currentContainer) {
+      setStyles(element, {
+        transform: 'translateX(' + translateX + 'px) translateY(' + translateY + 'px)'
+      });
+    }
+
     // Update child element's styles to reflect the current visibility state.
     item._child.removeAttribute('style');
     targetGrid._itemShowHandler.start(item, true);
 
-    // Recreate item's drag handler.
-    item._drag = targetStn.dragEnabled ? new Grid.ItemDrag(item) : null;
-
-    // Setup release data and start the release.
-    offsetDiff = getOffsetDiff(targetContainer, targetGridElement, true);
-    release.containerDiffX = offsetDiff.left;
-    release.containerDiffY = offsetDiff.top;
+    // Start the release.
     release.start();
 
     return drag;
@@ -22645,7 +22719,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
     var containingBlock;
     var offsetDiff;
     var elementGBCR;
-    var isWithinDragContainer;
 
     // If item is not active, don't start the drag.
     if (!item._isActive) {
@@ -22698,15 +22771,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
     // grid's container element we need to cast some extra spells.
     if (dragContainer !== gridContainer) {
 
-      // Check if dragged element is already a child of the drag container.
-      isWithinDragContainer = element.parentNode === dragContainer;
-
-      // If dragged elment is not yet a child of the drag container our first
-      // job is to move it there.
-      if (!isWithinDragContainer) {
-        dragContainer.appendChild(element);
-      }
-
       // Store the container offset diffs to drag data.
       offsetDiff = getOffsetDiff(containingBlock, gridContainer);
       dragData.containerDiffX = offsetDiff.left;
@@ -22714,16 +22778,18 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
       // If the dragged element is a child of the drag container all we need to
       // do is setup the relative drag position data.
-      if (isWithinDragContainer) {
+      if (element.parentNode === dragContainer) {
         dragData.gridX = currentLeft - dragData.containerDiffX;
         dragData.gridY = currentTop - dragData.containerDiffY;
       }
 
-      // Otherwise, we need to setup the actual drag position data and adjust
-      // the element's translate values to account for the DOM position shift.
+      // Otherwise we need to append the element inside the correct container,
+      // setup the actual drag position data and adjust the element's translate
+      // values to account for the DOM position shift.
       else {
         dragData.left = currentLeft + dragData.containerDiffX;
         dragData.top = currentTop + dragData.containerDiffY;
+        dragContainer.appendChild(element);
         setStyles(element, {
           transform: 'translateX(' + dragData.left + 'px) translateY(' + dragData.top + 'px)'
         });
@@ -22731,16 +22797,16 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
     }
 
-    // Get and store element's current offset from window's northwest corner.
-    elementGBCR = element.getBoundingClientRect();
-    dragData.elementClientX = elementGBCR.left;
-    dragData.elementClientY = elementGBCR.top;
+    // Set drag class.
+    addClass(element, settings.itemDraggingClass);
 
     // Bind drag scrollers.
     drag.bindScrollListeners();
 
-    // Set drag class.
-    addClass(element, settings.itemDraggingClass);
+    // Get and store element's current offset from window's northwest corner.
+    elementGBCR = element.getBoundingClientRect();
+    dragData.elementClientX = elementGBCR.left;
+    dragData.elementClientY = elementGBCR.top;
 
     // Emit dragStart event.
     grid._emit(evDragStart, item, event);
@@ -22802,15 +22868,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
       dragData.elementClientY += yDiff;
     }
 
+    // Overlap handling.
+    settings.dragSort && drag._checkSortOverlap();
+
     // Update element's translateX/Y values.
     setStyles(element, {
       transform: 'translateX(' + dragData.left + 'px) translateY(' + dragData.top + 'px)'
     });
-
-    // Overlap handling.
-    if (settings.dragSort) {
-      drag._checkSortOverlap();
-    }
 
     // Emit dragMove event.
     grid._emit(evDragMove, item, event);
@@ -22861,15 +22925,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
       dragData.gridY = dragData.top - dragData.containerDiffY;
     }
 
+    // Overlap handling.
+    settings.dragSort && drag._checkSortOverlap();
+
     // Update element's translateX/Y values.
     setStyles(element, {
       transform: 'translateX(' + dragData.left + 'px) translateY(' + dragData.top + 'px)'
     });
-
-    // Overlap handling.
-    if (settings.dragSort) {
-      drag._checkSortOverlap();
-    }
 
     // Emit dragScroll event.
     grid._emit(evDragScroll, item, event);
@@ -22898,14 +22960,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
     // If item is not active, reset drag.
     if (!item._isActive) {
-      drag.stop();
-      return;
+      return drag.stop();
     }
 
     // Finish currently queued overlap check.
-    if (settings.dragSort) {
-      drag._checkSortOverlap('finish');
-    }
+    settings.dragSort && drag._checkSortOverlap('finish');
 
     // Remove scroll listeners.
     drag.unbindScrollListeners();
@@ -22924,12 +22983,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
     grid._emit(evDragEnd, item, event);
 
     // Finish up the migration process or start the release process.
-    if (drag._isMigrating) {
-      drag.finishMigration();
-    }
-    else {
-      release.start();
-    }
+    drag._isMigrating ? drag.finishMigration() : release.start();
 
     return drag;
 
@@ -23041,7 +23095,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
       ret[0] = array[0];
       for (i = 1; i < len; i++) {
         if (ret.indexOf(array[i]) < 0) {
-          ret[ret.length] = array[i];
+          ret.push(array[i]);
         }
       }
     }
@@ -23508,16 +23562,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
       // Find scroll parents.
       while (parent && parent !== doc && parent !== docElem) {
         if (overflowRegex.test(getStyle(parent, 'overflow') + getStyle(parent, 'overflow-y') + getStyle(parent, 'overflow-x'))) {
-          ret[ret.length] = parent;
+          ret.push(parent);
         }
         parent = getStyle(parent, 'position') === 'fixed' ? null : parent.parentNode;
       }
 
       // If parent is not fixed element, add window object as the last scroll
       // parent.
-      if (parent !== null) {
-        ret[ret.length] = global;
-      }
+      parent !== null && ret.push(global);
 
     }
     // If fixed elements behave as defined in the W3C specification.
@@ -23535,7 +23587,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
         // Add the parent element to return items if it is scrollable.
         if (overflowRegex.test(getStyle(parent, 'overflow') + getStyle(parent, 'overflow-y') + getStyle(parent, 'overflow-x'))) {
-          ret[ret.length] = parent;
+          ret.push(parent);
         }
 
         // Update element and parent references.
@@ -23552,7 +23604,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
       // Otherwise add global object (window) as the last scroll parent.
       else {
-        ret[ret.length] = global;
+        ret.push(global);
       }
 
     }
@@ -23834,33 +23886,15 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
     var startEvent = isShow ? evShowStart : evHideStart;
     var endEvent = isShow ? evShowEnd : evHideEnd;
     var needsLayout = false;
-    var affectedItems = [];
     var completedItems = [];
-    var isAffected;
+    var hiddenItems = [];
     var item;
     var i;
-
-    // Get affected items: filter out items which will not be affected by this
-    // method in their current state.
-    for (i = 0; i < targetItems.length; i++) {
-
-      item = targetItems[i];
-      isAffected = isShow ? item._isHidden || item._isHiding || (item._isShowing && isInstant) :
-        !item._isHidden || item._isShowing || (item._isHiding && isInstant);
-
-      if (isAffected) {
-        affectedItems[affectedItems.length] = item;
-      }
-
-    }
-
-    // Set up counter based on valid items.
-    counter = affectedItems.length;
 
     // If there are no items call the callback, but don't emit any events.
     if (!counter) {
       if (typeof callback === typeFunction) {
-        callback(affectedItems);
+        callback(targetItems);
       }
     }
 
@@ -23868,12 +23902,12 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
     else {
 
       // Emit showStart/hideStart event.
-      inst._emit(startEvent, affectedItems.concat());
+      inst._emit(startEvent, targetItems.concat());
 
       // Show/hide items.
-      for (i = 0; i < affectedItems.length; i++) {
+      for (i = 0; i < targetItems.length; i++) {
 
-        item = affectedItems[i];
+        item = targetItems[i];
 
         // If inactive item is shown or active item is hidden we need to do
         // layout.
@@ -23882,13 +23916,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
         }
 
         // If inactive item is shown we also need to do some special hackery to
-        // make the item not animate it's next positioning (layout). Without the
-        // skipNextLayoutAnimation flag the item would animate to it's place
-        // from the northwest corner of the grid, which (imho) has a buggy vibe
-        // to it.
+        // make the item not animate it's next positioning (layout).
         if (isShow && !item._isActive) {
           item._skipNextLayoutAnimation = true;
         }
+
+        // If the a hidden item is being shown we need to refresh the item's
+        // dimensions.
+        isShow && item._isHidden && hiddenItems.push(item);
 
         // Show/hide the item.
         item['_' + method](isInstant, function (interrupted, item) {
@@ -23896,7 +23931,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
           // If the current item's animation was not interrupted add it to the
           // completedItems array.
           if (!interrupted) {
-            completedItems[completedItems.length] = item;
+            completedItems.push(item);
           }
 
           // If all items have finished their animations call the callback
@@ -23911,6 +23946,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
         });
 
       }
+
+      // Refresh hidden items.
+      hiddenItems.length && inst.refreshItems(hiddenItems);
 
       // Layout if needed.
       if (needsLayout && layout) {
@@ -24163,7 +24201,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
    */
 
   /*!
-   * muuriLayout v0.4.0
+   * muuriLayout v0.4.1
    * Copyright (c) 2016 Niklas Rämö <inramo@gmail.com>
    * Released under the MIT license
    */
@@ -24319,22 +24357,22 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
       // If item is not aligned to the left edge, create a new slot.
       if (item.left > 0) {
-        newSlots[newSlots.length] = {
+        newSlots.push({
           left: 0,
           top: layout.height,
           width: item.left,
           height: Infinity
-        };
+        });
       }
 
       // If item is not aligned to the right edge, create a new slot.
       if ((item.left + item.width) < layout.width) {
-        newSlots[newSlots.length] = {
+        newSlots.push({
           left: item.left + item.width,
           top: layout.height,
           width: layout.width - item.left - item.width,
           height: Infinity
-        };
+        });
       }
 
       // Update grid height.
@@ -24347,22 +24385,22 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
       // If item is not aligned to the top, create a new slot.
       if (item.top > 0) {
-        newSlots[newSlots.length] = {
+        newSlots.push({
           left: layout.width,
           top: 0,
           width: Infinity,
           height: item.top
-        };
+        });
       }
 
       // If item is not aligned to the bottom, create a new slot.
       if ((item.top + item.height) < layout.height) {
-        newSlots[newSlots.length] = {
+        newSlots.push({
           left: layout.width,
           top: item.top + item.height,
           width: Infinity,
           height: layout.height - item.top - item.height
-        };
+        });
       }
 
       // Update grid width.
@@ -24381,7 +24419,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
         // (width/height > 0.49px) and also let's make sure that the slot is
         // within the boundaries of the grid.
         if (slot.width > 0.49 && slot.height > 0.49 && ((vertical && slot.top < layout.height) || (!vertical && slot.left < layout.width))) {
-          newSlots[newSlots.length] = slot;
+          newSlots.push(slot);
         }
       }
     }
@@ -24422,42 +24460,42 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
     // Left split.
     if (rect.left < hole.left) {
-      ret[ret.length] = {
+      ret.push({
         left: rect.left,
         top: rect.top,
         width: hole.left - rect.left,
         height: rect.height
-      };
+      });
     }
 
     // Right split.
     if ((rect.left + rect.width) > (hole.left + hole.width)) {
-      ret[ret.length] = {
+      ret.push({
         left: hole.left + hole.width,
         top: rect.top,
         width: (rect.left + rect.width) - (hole.left + hole.width),
         height: rect.height
-      };
+      });
     }
 
     // Top split.
     if (rect.top < hole.top) {
-      ret[ret.length] = {
+      ret.push({
         left: rect.left,
         top: rect.top,
         width: rect.width,
         height: hole.top - rect.top
-      };
+      });
     }
 
     // Bottom split.
     if ((rect.top + rect.height) > (hole.top + hole.height)) {
-      ret[ret.length] = {
+      ret.push({
         left: rect.left,
         top: hole.top + hole.height,
         width: rect.width,
         height: (rect.top + rect.height) - (hole.top + hole.height)
-      };
+      });
     }
 
     return ret;
@@ -27207,21 +27245,21 @@ if (typeof module !== 'undefined' && __webpack_require__.c[__webpack_require__.s
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(16)
+  __webpack_require__(14)
 }
 var Component = __webpack_require__(0)(
   /* script */
   __webpack_require__(8),
   /* template */
-  __webpack_require__(40),
+  __webpack_require__(38),
   /* styles */
   injectStyle,
   /* scopeId */
-  "data-v-614cfcbc",
+  "data-v-5a808db6",
   /* moduleIdentifier (server only) */
   null
 )
-Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-muuri\\src\\components\\MuuriGrid.vue"
+Component.options.__file = "C:\\Users\\watsonco\\Documents\\vue-muuri.git\\trunk\\src\\components\\MuuriGrid.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
 if (Component.options.functional) {console.error("[vue-loader] MuuriGrid.vue: functional components are not supported with templates, they should use render functions.")}
 
@@ -27232,9 +27270,9 @@ if (false) {(function () {
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-614cfcbc", Component.options)
+    hotAPI.createRecord("data-v-5a808db6", Component.options)
   } else {
-    hotAPI.reload("data-v-614cfcbc", Component.options)
+    hotAPI.reload("data-v-5a808db6", Component.options)
   }
   module.hot.dispose(function (data) {
     disposed = true
@@ -27251,21 +27289,21 @@ module.exports = Component.exports
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(13)
+  __webpack_require__(15)
 }
 var Component = __webpack_require__(0)(
   /* script */
   __webpack_require__(9),
   /* template */
-  __webpack_require__(37),
+  __webpack_require__(39),
   /* styles */
   injectStyle,
   /* scopeId */
-  "data-v-44732bfb",
+  "data-v-5b66aaf2",
   /* moduleIdentifier (server only) */
   null
 )
-Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-muuri\\src\\components\\items\\ItemLg.vue"
+Component.options.__file = "C:\\Users\\watsonco\\Documents\\vue-muuri.git\\trunk\\src\\components\\items\\ItemLg.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
 if (Component.options.functional) {console.error("[vue-loader] ItemLg.vue: functional components are not supported with templates, they should use render functions.")}
 
@@ -27276,9 +27314,9 @@ if (false) {(function () {
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-44732bfb", Component.options)
+    hotAPI.createRecord("data-v-5b66aaf2", Component.options)
   } else {
-    hotAPI.reload("data-v-44732bfb", Component.options)
+    hotAPI.reload("data-v-5b66aaf2", Component.options)
   }
   module.hot.dispose(function (data) {
     disposed = true
@@ -27295,21 +27333,21 @@ module.exports = Component.exports
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(17)
+  __webpack_require__(13)
 }
 var Component = __webpack_require__(0)(
   /* script */
   __webpack_require__(10),
   /* template */
-  __webpack_require__(41),
+  __webpack_require__(37),
   /* styles */
   injectStyle,
   /* scopeId */
-  "data-v-6ac0860c",
+  "data-v-1aa14b9e",
   /* moduleIdentifier (server only) */
   null
 )
-Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-muuri\\src\\components\\items\\ItemLink.vue"
+Component.options.__file = "C:\\Users\\watsonco\\Documents\\vue-muuri.git\\trunk\\src\\components\\items\\ItemLink.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
 if (Component.options.functional) {console.error("[vue-loader] ItemLink.vue: functional components are not supported with templates, they should use render functions.")}
 
@@ -27320,9 +27358,9 @@ if (false) {(function () {
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-6ac0860c", Component.options)
+    hotAPI.createRecord("data-v-1aa14b9e", Component.options)
   } else {
-    hotAPI.reload("data-v-6ac0860c", Component.options)
+    hotAPI.reload("data-v-1aa14b9e", Component.options)
   }
   module.hot.dispose(function (data) {
     disposed = true
@@ -27339,21 +27377,21 @@ module.exports = Component.exports
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(14)
+  __webpack_require__(16)
 }
 var Component = __webpack_require__(0)(
   /* script */
   __webpack_require__(11),
   /* template */
-  __webpack_require__(38),
+  __webpack_require__(40),
   /* styles */
   injectStyle,
   /* scopeId */
-  "data-v-45fdbe17",
+  "data-v-5cf13d0e",
   /* moduleIdentifier (server only) */
   null
 )
-Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-muuri\\src\\components\\items\\ItemMd.vue"
+Component.options.__file = "C:\\Users\\watsonco\\Documents\\vue-muuri.git\\trunk\\src\\components\\items\\ItemMd.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
 if (Component.options.functional) {console.error("[vue-loader] ItemMd.vue: functional components are not supported with templates, they should use render functions.")}
 
@@ -27364,9 +27402,9 @@ if (false) {(function () {
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-45fdbe17", Component.options)
+    hotAPI.createRecord("data-v-5cf13d0e", Component.options)
   } else {
-    hotAPI.reload("data-v-45fdbe17", Component.options)
+    hotAPI.reload("data-v-5cf13d0e", Component.options)
   }
   module.hot.dispose(function (data) {
     disposed = true
@@ -27383,21 +27421,21 @@ module.exports = Component.exports
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(15)
+  __webpack_require__(17)
 }
 var Component = __webpack_require__(0)(
   /* script */
   __webpack_require__(12),
   /* template */
-  __webpack_require__(39),
+  __webpack_require__(41),
   /* styles */
   injectStyle,
   /* scopeId */
-  "data-v-50b9a55a",
+  "data-v-67ad2451",
   /* moduleIdentifier (server only) */
   null
 )
-Component.options.__file = "C:\\Sites\\personal\\plugins\\vue-muuri\\src\\components\\items\\ItemSm.vue"
+Component.options.__file = "C:\\Users\\watsonco\\Documents\\vue-muuri.git\\trunk\\src\\components\\items\\ItemSm.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
 if (Component.options.functional) {console.error("[vue-loader] ItemSm.vue: functional components are not supported with templates, they should use render functions.")}
 
@@ -27408,9 +27446,9 @@ if (false) {(function () {
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-50b9a55a", Component.options)
+    hotAPI.createRecord("data-v-67ad2451", Component.options)
   } else {
-    hotAPI.reload("data-v-50b9a55a", Component.options)
+    hotAPI.reload("data-v-67ad2451", Component.options)
   }
   module.hot.dispose(function (data) {
     disposed = true
@@ -27422,107 +27460,6 @@ module.exports = Component.exports
 
 /***/ }),
 /* 37 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "item",
-    style: ({
-      'width': '100%',
-      'max-width': _vm.width,
-      'height': _vm.height
-    }),
-    attrs: {
-      "id": _vm.id
-    }
-  }, [_c('div', {
-    staticClass: "item-content item-lg"
-  }, [_vm._t("default")], 2)])
-},staticRenderFns: []}
-module.exports.render._withStripped = true
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-44732bfb", module.exports)
-  }
-}
-
-/***/ }),
-/* 38 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "item",
-    style: ({
-      'width': '100%',
-      'max-width': _vm.width,
-      'height': _vm.height
-    }),
-    attrs: {
-      "id": _vm.id
-    }
-  }, [_c('div', {
-    staticClass: "item-content item-md"
-  }, [_vm._t("default")], 2)])
-},staticRenderFns: []}
-module.exports.render._withStripped = true
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-45fdbe17", module.exports)
-  }
-}
-
-/***/ }),
-/* 39 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "item",
-    style: ({
-      'width': '100%',
-      'max-width': _vm.width,
-      'height': _vm.height
-    }),
-    attrs: {
-      "id": _vm.id
-    }
-  }, [_c('div', {
-    staticClass: "item-content item-sm"
-  }, [_vm._t("default")], 2)])
-},staticRenderFns: []}
-module.exports.render._withStripped = true
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-50b9a55a", module.exports)
-  }
-}
-
-/***/ }),
-/* 40 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "muuri-grid",
-    attrs: {
-      "id": _vm.id
-    }
-  }, [_vm._t("default")], 2)
-},staticRenderFns: []}
-module.exports.render._withStripped = true
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-614cfcbc", module.exports)
-  }
-}
-
-/***/ }),
-/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -27565,7 +27502,108 @@ module.exports.render._withStripped = true
 if (false) {
   module.hot.accept()
   if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-6ac0860c", module.exports)
+     require("vue-hot-reload-api").rerender("data-v-1aa14b9e", module.exports)
+  }
+}
+
+/***/ }),
+/* 38 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "muuri-grid",
+    attrs: {
+      "id": _vm.id
+    }
+  }, [_vm._t("default")], 2)
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-5a808db6", module.exports)
+  }
+}
+
+/***/ }),
+/* 39 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "item",
+    style: ({
+      'width': '100%',
+      'max-width': _vm.width,
+      'height': _vm.height
+    }),
+    attrs: {
+      "id": _vm.id
+    }
+  }, [_c('div', {
+    staticClass: "item-content item-lg"
+  }, [_vm._t("default")], 2)])
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-5b66aaf2", module.exports)
+  }
+}
+
+/***/ }),
+/* 40 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "item",
+    style: ({
+      'width': '100%',
+      'max-width': _vm.width,
+      'height': _vm.height
+    }),
+    attrs: {
+      "id": _vm.id
+    }
+  }, [_c('div', {
+    staticClass: "item-content item-md"
+  }, [_vm._t("default")], 2)])
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-5cf13d0e", module.exports)
+  }
+}
+
+/***/ }),
+/* 41 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "item",
+    style: ({
+      'width': '100%',
+      'max-width': _vm.width,
+      'height': _vm.height
+    }),
+    attrs: {
+      "id": _vm.id
+    }
+  }, [_c('div', {
+    staticClass: "item-content item-sm"
+  }, [_vm._t("default")], 2)])
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-67ad2451", module.exports)
   }
 }
 
